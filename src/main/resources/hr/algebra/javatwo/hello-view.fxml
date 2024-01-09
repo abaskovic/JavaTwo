@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" prefHeight="800.0" prefWidth="800.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.javatwo.HelloController">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+   <children>
+      <AnchorPane prefHeight="771.0" prefWidth="760.0">
+         <children>
+            <Button fx:id="stepButton" layoutX="24.0" layoutY="35.0" mnemonicParsing="false" onAction="#onStepButtonClick" prefHeight="80.0" prefWidth="80.0" text="START">
+               <font>
+                  <Font size="33.0" />
+               </font>
+            </Button>
+            <Label layoutX="42.0" layoutY="14.0" prefHeight="21.0" prefWidth="40.0" text="Step:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <GridPane fx:id="boardGridPane" gridLinesVisible="true" layoutX="165.0" layoutY="141.0" prefHeight="428.0" prefWidth="566.0">
+              <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+            </GridPane>
+            <Label layoutX="42.0" layoutY="655.0" text="Red Player:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="42.0" layoutY="686.0" text="Blue Player:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="redLivesLabel" layoutX="131.0" layoutY="656.0" text="5">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label fx:id="blueLivesLabel" layoutX="130.0" layoutY="688.0" text="5">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Pane fx:id="clankPane" layoutX="95.0" layoutY="576.0" prefHeight="21.0" prefWidth="636.0" style="-fx-background-color: #8B4513;" />
+            <Label layoutX="237.0" layoutY="14.0" text="svaki veci od 4 zmaj se mice">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Label layoutX="42.0" layoutY="576.0" prefHeight="21.0" text="Clank:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <GridPane fx:id="dragonStepGridPane" alignment="CENTER" gridLinesVisible="true" layoutX="471.0" layoutY="662.0" prefHeight="54.0" prefWidth="266.0">
+              <columnConstraints>
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints fx:id="dragonGridPane" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="104.0" minHeight="10.0" prefHeight="65.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+            </GridPane>
+            <Label layoutX="493.0" layoutY="638.0" text="1">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label layoutX="548.0" layoutY="638.0" text="2" textAlignment="RIGHT">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label layoutX="601.0" layoutY="638.0" text="3">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label layoutX="651.0" layoutY="638.0" text="4">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label layoutX="709.0" layoutY="638.0" text="5">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <ImageView fx:id="dragonStepImage" fitHeight="50.0" fitWidth="50.0" layoutX="377.0" layoutY="657.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../dragon.png" />
+               </image>
+            </ImageView>
+            <Label layoutX="237.0" layoutY="44.0" text="koliko dobije pola zaokruyeno na vise mora dat u clank">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+            <Pane fx:id="bagPane" layoutX="94.0" layoutY="602.0" prefHeight="21.0" prefWidth="636.0" style="-fx-background-color: #C4A484;" />
+            <Label layoutX="44.0" layoutY="602.0" prefHeight="21.0" text="Bag:">
+               <font>
+                  <Font name="System Bold" size="15.0" />
+               </font>
+            </Label>
+             <ImageView fx:id="bluePlayerImage" fitHeight="75.0" fitWidth="200.0" layoutX="58.0" layoutY="262.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true">
+                 <Image url="@../../../blue.png" />
+             </ImageView>
+            <ImageView fx:id="redPlayerImage" fitHeight="75.0" fitWidth="200.0" layoutX="53.0" layoutY="178.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../../../red.png" />
+               </image>
+            </ImageView>
+            <Line endX="437.0" layoutX="311.0" layoutY="115.0" startX="-100.0" />
+            <Line endX="427.5" endY="-9.5" layoutX="321.0" layoutY="125.0" startX="427.5" startY="394.0" />
+            <Line endX="-0.5" endY="-0.5" layoutX="211.0" layoutY="116.0" startX="-0.5" startY="25.0" />
+            <Line layoutX="739.0" layoutY="510.0" rotate="90.0" startY="20.0" />
+            <Line endX="-0.5" endY="-0.5" layoutX="221.0" layoutY="126.0" startX="-11.0" startY="15.0" />
+            <Line endX="-32.0" endY="-8.0" layoutX="231.0" layoutY="136.0" startX="-21.0" startY="5.0" />
+         </children>
+      </AnchorPane>
+   </children>
+</VBox>
