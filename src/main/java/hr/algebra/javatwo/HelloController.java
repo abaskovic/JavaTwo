@@ -1,9 +1,12 @@
 package hr.algebra.javatwo;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
@@ -11,8 +14,12 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.util.Duration;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class HelloController {
@@ -37,6 +44,8 @@ public class HelloController {
     private ImageView dragonStepImage;
 
     @FXML
+    private ImageView goldImage;
+    @FXML
     private GridPane boardGridPane;
 
     @FXML
@@ -47,27 +56,84 @@ public class HelloController {
     @FXML
     private Pane bagPane;
 
+    @FXML
+    private Label timerLabel;
     private boolean redPlayerTurn = true;
-    private List<String> bag = new ArrayList<String>();
+    private List<ClankColor> bag = new ArrayList<>();
     private int dragonLocation = 0;
 
 
     public final int NUM_DRAGONS = 7;
     public final int NUM_DRAGONS_IN_BAG = 15;
+    public final int SHOW_GOLD_AFTER_SEC = 120;
+    public final int NUM_LIVES = 5;
+    private int seconds ;
+
+    private Timeline timeline;
 
     public void initialize() {
+        stepButton.setText("0");
+        seconds=SHOW_GOLD_AFTER_SEC;
+        blueLivesLabel.setText( String.valueOf(NUM_LIVES));
+        redLivesLabel.setText( String.valueOf(NUM_LIVES));
+        clankPane.getChildren().clear();
+        bagPane.getChildren().clear();
+
+        boardGridPane.getChildren().clear();
+        dragonStepGridPane.getChildren().clear();
+
         boardGridPane.add(bluePlayerImage, 0, 0);
         boardGridPane.add(redPlayerImage, 0, 0);
         dragonStepGridPane.add(dragonStepImage, 0, 0);
+        goldImage.setVisible(false);
+
         for (int i = 0; i < NUM_DRAGONS; i++) {
             placeDragons();
         }
 
         for (int i = 0; i < NUM_DRAGONS_IN_BAG; i++) {
-            bag.add("D");
+            bag.add(ClankColor.D);
         }
+
+        StartTimer();
     }
 
+    private void StartTimer() {
+
+        timeline = new Timeline(new KeyFrame(
+                Duration.seconds(1), actionEvent -> {
+                    seconds--;
+
+                    int remainingSeconds = seconds % 60;
+                    int minutes = seconds / 60;
+                    String formattedTime = String.format("%02d:%02d", minutes, remainingSeconds);
+                    timerLabel.setText(formattedTime);
+
+                    if (seconds <= 0) {
+                        timeline.stop();
+                        ShowGold();
+                    }
+
+                }
+        ));
+        timeline.setCycleCount(Timeline.INDEFINITE);
+        timeline.play();
+
+
+    }
+
+
+    private void ShowGold() {
+        Random random = new Random();
+        int randomRow = random.nextInt(5);
+        int randomCol = random.nextInt(5);
+
+        goldImage.setVisible(true);
+
+        boardGridPane.add(goldImage, randomCol, randomRow);
+
+
+    }
     private void placeDragons() {
         Random random = new Random();
         int randomRow = random.nextInt(5);
@@ -101,24 +167,34 @@ public class HelloController {
         ImageView currentPlayer = redPlayerTurn ? redPlayerImage : bluePlayerImage;
         movePlayer(currentPlayer, step);
 
-        if (GridPane.getColumnIndex(dragonStepImage) < 5)MoveDragon();
-        CheckWinner();
+        if (GridPane.getColumnIndex(dragonStepImage) < 5) MoveDragon();
+
         redPlayerTurn = !redPlayerTurn;
 
 
     }
 
-    private void CheckWinner() {
+    private boolean CheckWinner() {
         int redLives = Integer.parseInt(redLivesLabel.getText());
         int blueLives = Integer.parseInt(blueLivesLabel.getText());
 
-        if (redLives<1){
-            System.out.println("BLUE WIN");
+        if (redLives < 1) {
+            AlertWinner("Blue");
+            return true;
         }
-        if (blueLives<1){
-            System.out.println("RED WIN");
+        if (blueLives < 1) {
+            AlertWinner("Red");
+            return true;
         }
+        return false;
+    }
 
+    private void AlertWinner(String winner) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Winner information");
+        alert.setHeaderText(null);
+        alert.setContentText("Winner is " + winner + " player");
+        alert.showAndWait();
     }
 
     private void MoveDragon() {
@@ -140,19 +216,18 @@ public class HelloController {
             currentCol = dif;
         }
 
-        currentRow=Math.min(currentRow,4);
-        currentCol=Math.min(currentCol,4);
+        currentRow = Math.min(currentRow, 4);
+        currentCol = Math.min(currentCol, 4);
 
 
-        if (currentCol==4 && currentRow==4){
-            currentRow=0;
-            currentCol=0;
+        if (currentCol == 4 && currentRow == 4) {
+            currentRow = 0;
+            currentCol = 0;
         }
 
 
-        System.out.println(dragonLocation);
-        if (currentCol*currentRow>24){
-            System.out.println("ces");
+
+        if (currentCol * currentRow > 24) {
             return;
         }
         GridPane.setRowIndex(player, currentRow);
@@ -163,34 +238,37 @@ public class HelloController {
 
         addPaneRectangle(redPlayerTurn ? Color.RED : Color.BLUE, rectangleAdd, clankPane);
 
+        if (stepOnGold(currentCol , currentRow)){
+            AlertWinner(redPlayerTurn?"Red":"Blue");
+        }
+
         if (stepOnDragon(currentCol, currentRow)) {
 
             Collections.shuffle(bag);
 
-            List<String> selectedFromBag = new ArrayList<String>(bag.subList(0, dragonLocation + 1));
+            List<ClankColor> selectedFromBag = new ArrayList<>(bag.subList(0, dragonLocation + 1));
 
             bagPane.getChildren().clear();
-            for (String element : selectedFromBag) {
-                System.out.println(element);
+            for (ClankColor element : selectedFromBag) {
 
                 Color color = null;
                 switch (element) {
-                    case "D" -> {
+                    case D -> {
                         color = Color.BLACK;
                         if (dragonLocation > 0) dragonLocation--;
                         GridPane.setColumnIndex(dragonStepImage, dragonLocation);
                     }
-                    case "R" -> {
+                    case R -> {
                         color = Color.RED;
                         int redLives = Integer.parseInt(redLivesLabel.getText()) - 1;
                         redLivesLabel.setText(Integer.toString(redLives));
-                        CheckWinner();
+                        if (CheckWinner()) return;
                     }
-                    case "B" -> {
+                    case B -> {
                         color = Color.BLUE;
                         int blueLives = Integer.parseInt(blueLivesLabel.getText()) - 1;
                         blueLivesLabel.setText(Integer.toString(blueLives));
-                        CheckWinner();
+                        if (CheckWinner()) return;
                     }
                 }
 
@@ -199,15 +277,11 @@ public class HelloController {
             }
 
             clankPane.getChildren().clear();
-
             bag.subList(0, dragonLocation + 1).clear();
-
-            bag = bag.stream().filter(el -> el.equals("D")).collect(Collectors.toList());
+            bag = bag.stream().filter(el -> el.equals(ClankColor.D)).collect(Collectors.toList());
 
 
         }
-
-
     }
 
     private void addPaneRectangle(Color color, int rectangleAdd, Pane pane) {
@@ -216,7 +290,7 @@ public class HelloController {
             int clankSize = pane.getChildren().size();
             playerRectangle.setTranslateX(clankSize * 25);
             pane.getChildren().add(playerRectangle);
-            bag.add(redPlayerTurn ? "R" : "B");
+            bag.add(redPlayerTurn ? ClankColor.R : ClankColor.B);
         }
 
     }
@@ -226,15 +300,26 @@ public class HelloController {
         return node instanceof Label;
     }
 
+
+    private boolean stepOnGold(int col, int row) {
+        Node node = getNodeByRowColIndex(col, row, boardGridPane);
+        return node instanceof ImageView;
+
+    }
     private Node getNodeByRowColIndex(int col, int row, GridPane gridPane) {
         Node res = null;
         ObservableList<Node> children = gridPane.getChildren();
 
         for (Node n : children) {
             if (GridPane.getColumnIndex(n) != null && GridPane.getColumnIndex(n) == col && GridPane.getRowIndex(n) != null && GridPane.getRowIndex(n) == row) {
-                if (!(n instanceof ImageView)) {
+                if (!(n instanceof ImageView image)) {
                     res = n;
                     break;
+                }else {
+                    String url = image.getImage().getUrl();
+                    if (url.contains("gold.png")){
+                        res = n;
+                    }
                 }
 
             }
