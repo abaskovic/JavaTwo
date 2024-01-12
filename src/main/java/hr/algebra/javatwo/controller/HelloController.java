@@ -1,5 +1,10 @@
-package hr.algebra.javatwo;
+package hr.algebra.javatwo.controller;
 
+import hr.algebra.javatwo.model.ClankColor;
+import hr.algebra.javatwo.model.GameState;
+import hr.algebra.javatwo.model.GridCell;
+import hr.algebra.javatwo.utils.DialogUtils;
+import hr.algebra.javatwo.utils.FileUtils;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
@@ -27,13 +32,16 @@ public class HelloController {
 
     @FXML
     private Button stepButton;
+    @FXML
+    private Button useButton;
+    @FXML
+    private Button skipButton;
 
     @FXML
     private Label redLivesLabel;
 
     @FXML
     private Label blueLivesLabel;
-
 
     @FXML
     private ImageView redPlayerImage;
@@ -58,24 +66,32 @@ public class HelloController {
 
     @FXML
     private Label timerLabel;
+    @FXML
+    private Label playerLabel;
+
+
     private boolean redPlayerTurn = true;
     private List<ClankColor> bag = new ArrayList<>();
-    private int dragonLocation = 0;
-
-
+    private List<ClankColor> clank = new ArrayList<>();
+    private int dragonPosition = 0;
     public final int NUM_DRAGONS = 7;
     public final int NUM_DRAGONS_IN_BAG = 15;
-    public final int SHOW_GOLD_AFTER_SEC = 120;
+    public final int SHOW_GOLD_AFTER_SEC = 10;
     public final int NUM_LIVES = 5;
-    private int seconds ;
+    private int timeInSeconds;
 
     private Timeline timeline;
 
     public void initialize() {
+        stepButton.setDisable(false);
+
+        skipButton.setDisable(true);
+        useButton.setDisable(true);
+
         stepButton.setText("0");
-        seconds=SHOW_GOLD_AFTER_SEC;
-        blueLivesLabel.setText( String.valueOf(NUM_LIVES));
-        redLivesLabel.setText( String.valueOf(NUM_LIVES));
+        timeInSeconds = SHOW_GOLD_AFTER_SEC;
+        blueLivesLabel.setText(String.valueOf(NUM_LIVES));
+        redLivesLabel.setText(String.valueOf(NUM_LIVES));
         clankPane.getChildren().clear();
         bagPane.getChildren().clear();
 
@@ -86,6 +102,7 @@ public class HelloController {
         boardGridPane.add(redPlayerImage, 0, 0);
         dragonStepGridPane.add(dragonStepImage, 0, 0);
         goldImage.setVisible(false);
+
 
         for (int i = 0; i < NUM_DRAGONS; i++) {
             placeDragons();
@@ -102,19 +119,19 @@ public class HelloController {
 
         timeline = new Timeline(new KeyFrame(
                 Duration.seconds(1), actionEvent -> {
-                    seconds--;
+            timeInSeconds--;
 
-                    int remainingSeconds = seconds % 60;
-                    int minutes = seconds / 60;
-                    String formattedTime = String.format("%02d:%02d", minutes, remainingSeconds);
-                    timerLabel.setText(formattedTime);
+            int remainingSeconds = timeInSeconds % 60;
+            int minutes = timeInSeconds / 60;
+            String formattedTime = String.format("%02d:%02d", minutes, remainingSeconds);
+            timerLabel.setText(formattedTime);
 
-                    if (seconds <= 0) {
-                        timeline.stop();
-                        ShowGold();
-                    }
+            if (timeInSeconds <= 0) {
+                timeline.stop();
+                ShowGold();
+            }
 
-                }
+        }
         ));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
@@ -134,6 +151,7 @@ public class HelloController {
 
 
     }
+
     private void placeDragons() {
         Random random = new Random();
         int randomRow = random.nextInt(5);
@@ -144,13 +162,15 @@ public class HelloController {
             randomCol = 2;
         }
 
+        addDragon(randomCol, randomRow);
+    }
+
+    private void addDragon(int col, int row) {
         Label dragonLabel = new Label("D");
         dragonLabel.setTextFill(Color.RED);
         dragonLabel.setAlignment(Pos.BOTTOM_RIGHT);
         dragonLabel.setPrefSize(150, 150);
-
-        boardGridPane.add(dragonLabel, randomCol, randomRow);
-
+        boardGridPane.add(dragonLabel, col, row);
     }
 
     @FXML
@@ -158,18 +178,46 @@ public class HelloController {
         rollDice();
     }
 
+    @FXML
+    protected void onUseButtonClick() {
+        useSteps();
+    }
+
+    @FXML
+    protected void onSkipButtonClick() {
+        switchPlayer();
+    }
+
     private void rollDice() {
-
-
+        stepButton.setDisable(true);
+        skipButton.setDisable(false);
+        useButton.setDisable(false);
         Random random = new Random();
         int step = random.nextInt(6) + 1;
         stepButton.setText(Integer.toString(step));
+
+
+    }
+
+    private void useSteps() {
+        stepButton.setDisable(false);
+        skipButton.setDisable(true);
+
         ImageView currentPlayer = redPlayerTurn ? redPlayerImage : bluePlayerImage;
+        int step = Integer.parseInt(stepButton.getText());
         movePlayer(currentPlayer, step);
-
         if (GridPane.getColumnIndex(dragonStepImage) < 5) MoveDragon();
+        switchPlayer();
 
+
+    }
+
+    private void switchPlayer() {
+        stepButton.setDisable(false);
+        useButton.setDisable(true);
         redPlayerTurn = !redPlayerTurn;
+        playerLabel.setText(redPlayerTurn ? "Red" : "Blue");
+        playerLabel.setTextFill(redPlayerTurn ? Color.RED : Color.BLUE);
 
 
     }
@@ -190,16 +238,14 @@ public class HelloController {
     }
 
     private void AlertWinner(String winner) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Winner information");
-        alert.setHeaderText(null);
-        alert.setContentText("Winner is " + winner + " player");
-        alert.showAndWait();
+        stepButton.setDisable(true);
+        DialogUtils.showDialog(Alert.AlertType.INFORMATION,
+                "Game Finished!", "Winner is " + winner + " player");
     }
 
     private void MoveDragon() {
-        dragonLocation = GridPane.getColumnIndex(dragonStepImage) + 1;
-        GridPane.setColumnIndex(dragonStepImage, dragonLocation);
+        dragonPosition = GridPane.getColumnIndex(dragonStepImage) + 1;
+        GridPane.setColumnIndex(dragonStepImage, dragonPosition);
     }
 
 
@@ -226,27 +272,27 @@ public class HelloController {
         }
 
 
-
         if (currentCol * currentRow > 24) {
             return;
         }
+
         GridPane.setRowIndex(player, currentRow);
         GridPane.setColumnIndex(player, currentCol);
 
 
         int rectangleAdd = (int) Math.ceil((double) step / 2);
 
-        addPaneRectangle(redPlayerTurn ? Color.RED : Color.BLUE, rectangleAdd, clankPane);
+        addPaneRectangle(redPlayerTurn ? Color.RED : Color.BLUE, rectangleAdd, clankPane, false);
 
-        if (stepOnGold(currentCol , currentRow)){
-            AlertWinner(redPlayerTurn?"Red":"Blue");
+        if (stepOnGold(currentCol, currentRow)) {
+            AlertWinner(redPlayerTurn ? "Red" : "Blue");
         }
 
         if (stepOnDragon(currentCol, currentRow)) {
-
+            bag.addAll(clank);
             Collections.shuffle(bag);
 
-            List<ClankColor> selectedFromBag = new ArrayList<>(bag.subList(0, dragonLocation + 1));
+            List<ClankColor> selectedFromBag = new ArrayList<>(bag.subList(0, dragonPosition + 1));
 
             bagPane.getChildren().clear();
             for (ClankColor element : selectedFromBag) {
@@ -255,8 +301,8 @@ public class HelloController {
                 switch (element) {
                     case D -> {
                         color = Color.BLACK;
-                        if (dragonLocation > 0) dragonLocation--;
-                        GridPane.setColumnIndex(dragonStepImage, dragonLocation);
+                        if (dragonPosition > 0) dragonPosition--;
+                        GridPane.setColumnIndex(dragonStepImage, dragonPosition);
                     }
                     case R -> {
                         color = Color.RED;
@@ -273,24 +319,25 @@ public class HelloController {
                 }
 
 
-                addPaneRectangle(color, 1, bagPane);
+                addPaneRectangle(color, 1, bagPane, false);
             }
 
             clankPane.getChildren().clear();
-            bag.subList(0, dragonLocation + 1).clear();
+            clank.clear();
+            bag.subList(0, dragonPosition + 1).clear();
             bag = bag.stream().filter(el -> el.equals(ClankColor.D)).collect(Collectors.toList());
 
 
         }
     }
 
-    private void addPaneRectangle(Color color, int rectangleAdd, Pane pane) {
+    private void addPaneRectangle(Color color, int rectangleAdd, Pane pane, boolean skipAdding) {
         for (int i = 0; i < rectangleAdd; i++) {
             Rectangle playerRectangle = new Rectangle(20, 20, color);
             int clankSize = pane.getChildren().size();
             playerRectangle.setTranslateX(clankSize * 25);
             pane.getChildren().add(playerRectangle);
-            bag.add(redPlayerTurn ? ClankColor.R : ClankColor.B);
+            if (!skipAdding) clank.add(redPlayerTurn ? ClankColor.R : ClankColor.B);
         }
 
     }
@@ -306,6 +353,7 @@ public class HelloController {
         return node instanceof ImageView;
 
     }
+
     private Node getNodeByRowColIndex(int col, int row, GridPane gridPane) {
         Node res = null;
         ObservableList<Node> children = gridPane.getChildren();
@@ -315,9 +363,9 @@ public class HelloController {
                 if (!(n instanceof ImageView image)) {
                     res = n;
                     break;
-                }else {
+                } else {
                     String url = image.getImage().getUrl();
-                    if (url.contains("gold.png")){
+                    if (url.contains("gold.png")) {
                         res = n;
                     }
                 }
@@ -327,4 +375,74 @@ public class HelloController {
         }
         return res;
     }
+
+
+    public void saveGame() {
+
+        List<GridCell> gameBoardState = new ArrayList<>();
+
+        boardGridPane.getChildren().forEach(node -> {
+            int row = GridPane.getRowIndex(node);
+            int col = GridPane.getColumnIndex(node);
+
+            GridCell cell = new GridCell(node.toString(), row, col);
+
+            gameBoardState.add(cell);
+        });
+
+
+        FileUtils.saveGame(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(),
+                blueLivesLabel.getText(), dragonPosition, stepButton.getText());
+    }
+
+    public void loadGame() {
+
+        GameState recoveredGameState = FileUtils.loadGame();
+
+        if (recoveredGameState != null) {
+
+            List<GridCell> gameBoardState = recoveredGameState.getGameBoardState();
+            boardGridPane.getChildren().clear();
+            gameBoardState.forEach(cell -> {
+                String node = cell.getNode();
+                int startIndex = node.indexOf("id=");
+                if (startIndex != -1) {
+                    int endIndex = node.indexOf(",");
+                    String id = node.substring(startIndex + 3, endIndex);
+                    if (id.contains("red")) {
+                        boardGridPane.add(redPlayerImage, cell.getCol(), cell.getRow());
+                    } else if (id.contains("blue")) {
+                        boardGridPane.add(bluePlayerImage, cell.getCol(), cell.getRow());
+                    } else if (id.contains("gold")) {
+                        boardGridPane.add(goldImage, cell.getCol(), cell.getRow());
+                    }
+                } else {
+                    addDragon(cell.getCol(), cell.getRow());
+                }
+            });
+
+            timeInSeconds = recoveredGameState.getTimeInSeconds();
+            timeline.stop();
+            StartTimer();
+
+            bag.clear();
+            bag = recoveredGameState.getBag();
+
+            clank.clear();
+            clank = recoveredGameState.getClank();
+            clankPane.getChildren().clear();
+            clank.forEach(clankColor -> addPaneRectangle(clankColor.equals(ClankColor.R) ? Color.RED : Color.BLUE, 1, clankPane, true));
+
+            redPlayerTurn = recoveredGameState.isRedPlayerTurn();
+            redLivesLabel.setText(recoveredGameState.getRedLives());
+            blueLivesLabel.setText(recoveredGameState.getBlueLives());
+            dragonPosition = recoveredGameState.getDragonPosition();
+            GridPane.setColumnIndex(dragonStepImage, dragonPosition);
+            stepButton.setText(recoveredGameState.getLastStep());
+
+            DialogUtils.showDialog(Alert.AlertType.INFORMATION,
+                    "Game loaded!", "Your game has been successfully loaded!");
+        }
+    }
+
 }

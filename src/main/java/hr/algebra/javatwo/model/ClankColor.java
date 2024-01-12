@@ -1,4 +1,4 @@
-package hr.algebra.javatwo;
+package hr.algebra.javatwo.model;
 
 public enum ClankColor {
     D,R,B
