@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 
 public class GameState  implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     public GameState(List<GridCell> gameBoardState, int timeInSeconds, List<ClankColor> bag, List<ClankColor> clank, boolean redPlayerTurn, String redLives, String blueLives, int dragonPosition, String lastStep) {
         this.gameBoardState = gameBoardState;
         this.timeInSeconds = timeInSeconds;
@@ -17,87 +19,61 @@ public class GameState  implements Serializable {
     }
 
 
-    private List<GridCell> gameBoardState;
-    private int timeInSeconds;
-    private List<ClankColor> bag;
-    private List<ClankColor> clank;
-    private boolean redPlayerTurn;
-    private String redLives;
-    private String blueLives;
-    private int dragonPosition;
-    private String lastStep;
+    private final List<GridCell> gameBoardState;
+    private final int timeInSeconds;
+    private final List<ClankColor> bag;
+    private final List<ClankColor> clank;
+    private final boolean redPlayerTurn;
+    private final String redLives;
+    private final String blueLives;
+    private final int dragonPosition;
+    private final String lastStep;
 
     public List<GridCell> getGameBoardState() {
         return gameBoardState;
     }
 
-    public void setGameBoardState(List<GridCell> gameBoardState) {
-        this.gameBoardState = gameBoardState;
-    }
 
     public int getTimeInSeconds() {
         return timeInSeconds;
     }
 
-    public void setTimeInSeconds(int timeInSeconds) {
-        this.timeInSeconds = timeInSeconds;
-    }
 
     public List<ClankColor> getBag() {
         return bag;
     }
 
-    public void setBag(List<ClankColor> bag) {
-        this.bag = bag;
-    }
 
     public List<ClankColor> getClank() {
         return clank;
     }
 
-    public void setClank(List<ClankColor> clank) {
-        this.clank = clank;
-    }
 
     public boolean isRedPlayerTurn() {
         return redPlayerTurn;
     }
 
-    public void setRedPlayerTurn(boolean redPlayerTurn) {
-        this.redPlayerTurn = redPlayerTurn;
-    }
 
     public String getRedLives() {
         return redLives;
     }
 
-    public void setRedLives(String redLives) {
-        this.redLives = redLives;
-    }
+
 
     public String getBlueLives() {
         return blueLives;
     }
 
-    public void setBlueLives(String blueLives) {
-        this.blueLives = blueLives;
-    }
 
     public int getDragonPosition() {
         return dragonPosition;
     }
 
-    public void setDragonPosition(int dragonPosition) {
-        this.dragonPosition = dragonPosition;
-    }
 
     public String getLastStep() {
         return lastStep;
     }
 
-    public void setLastStep(String lastStep) {
-        this.lastStep = lastStep;
-    }
 
 
 }

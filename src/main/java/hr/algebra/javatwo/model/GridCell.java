@@ -6,6 +6,8 @@ import java.io.Serializable;
 
 public class GridCell implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     private String node;
     private int row;
     private  int col;

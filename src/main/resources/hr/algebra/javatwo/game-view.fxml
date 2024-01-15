@@ -16,7 +16,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox alignment="CENTER" prefHeight="800.0" prefWidth="800.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.javatwo.controller.HelloController">
+<VBox alignment="CENTER" prefHeight="800.0" prefWidth="800.0" spacing="20.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="hr.algebra.javatwo.controller.GameController">
 
    <children>
       <MenuBar prefHeight="25.0" prefWidth="786.0">
@@ -28,6 +28,11 @@
                   <MenuItem mnemonicParsing="false" onAction="#loadGame" text="Load game" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="Documentation">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#generateDocumentation" text="Open" />
+               </items>
+            </Menu>
         </menus>
       </MenuBar>
       <AnchorPane prefHeight="771.0" prefWidth="760.0">
@@ -171,9 +176,13 @@
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
-            <Label layoutX="616.0" layoutY="67.0" text="Label" />
-            <Button layoutX="27.0" layoutY="129.0" mnemonicParsing="false" fx:id="useButton" onAction="#onUseButtonClick" prefHeight="25.0" prefWidth="80.0" text="Use" />
-            <Button layoutX="27.0" layoutY="166.0" mnemonicParsing="false" fx:id="skipButton" onAction="#onSkipButtonClick" prefHeight="25.0" prefWidth="80.0" text="Skip" />
+            <Button fx:id="useButton" layoutX="27.0" layoutY="129.0" mnemonicParsing="false" onAction="#onUseButtonClick" prefHeight="25.0" prefWidth="80.0" text="Use" />
+            <Button fx:id="skipButton" layoutX="27.0" layoutY="166.0" mnemonicParsing="false" onAction="#onSkipButtonClick" prefHeight="25.0" prefWidth="80.0" text="Skip" />
+            <Button fx:id="newGameButton" layoutX="23.0" layoutY="16.0" mnemonicParsing="false" onAction="#initialize" prefHeight="180.0" prefWidth="138.0" text="New game" textAlignment="CENTER" visible="false" wrapText="true">
+               <font>
+                  <Font size="33.0" />
+               </font>
+            </Button>
          </children>
       </AnchorPane>
    </children>

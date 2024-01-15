@@ -3,8 +3,7 @@ package hr.algebra.javatwo.controller;
 import hr.algebra.javatwo.model.ClankColor;
 import hr.algebra.javatwo.model.GameState;
 import hr.algebra.javatwo.model.GridCell;
-import hr.algebra.javatwo.utils.DialogUtils;
-import hr.algebra.javatwo.utils.FileUtils;
+import hr.algebra.javatwo.utils.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.ObservableList;
@@ -21,13 +20,24 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class HelloController {
+import static hr.algebra.javatwo.model.Constants.*;
+import static hr.algebra.javatwo.utils.DocumentationUtils.appendModifier;
+import static hr.algebra.javatwo.utils.DocumentationUtils.getFullyQualifiedName;
+
+public class GameController {
 
 
     @FXML
@@ -36,6 +46,8 @@ public class HelloController {
     private Button useButton;
     @FXML
     private Button skipButton;
+    @FXML
+    private Button newGameButton;
 
     @FXML
     private Label redLivesLabel;
@@ -74,19 +86,16 @@ public class HelloController {
     private List<ClankColor> bag = new ArrayList<>();
     private List<ClankColor> clank = new ArrayList<>();
     private int dragonPosition = 0;
-    public final int NUM_DRAGONS = 7;
-    public final int NUM_DRAGONS_IN_BAG = 15;
-    public final int SHOW_GOLD_AFTER_SEC = 10;
-    public final int NUM_LIVES = 5;
+
     private int timeInSeconds;
 
     private Timeline timeline;
 
     public void initialize() {
         stepButton.setDisable(false);
-
         skipButton.setDisable(true);
         useButton.setDisable(true);
+        newGameButton.setVisible(false);
 
         stepButton.setText("0");
         timeInSeconds = SHOW_GOLD_AFTER_SEC;
@@ -176,6 +185,12 @@ public class HelloController {
     @FXML
     protected void onStepButtonClick() {
         rollDice();
+        List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
+        GameState gameStateToSendToServer = new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(), blueLivesLabel.getText(), dragonPosition, stepButton.getText());
+
+        NetworkingUtils.sendGameStateToServer(gameStateToSendToServer);
+
+
     }
 
     @FXML
@@ -238,9 +253,11 @@ public class HelloController {
     }
 
     private void AlertWinner(String winner) {
-        stepButton.setDisable(true);
         DialogUtils.showDialog(Alert.AlertType.INFORMATION,
                 "Game Finished!", "Winner is " + winner + " player");
+        newGameButton.setVisible(true);
+        timeline.stop();
+
     }
 
     private void MoveDragon() {
@@ -378,18 +395,9 @@ public class HelloController {
 
 
     public void saveGame() {
+        List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
 
-        List<GridCell> gameBoardState = new ArrayList<>();
-
-        boardGridPane.getChildren().forEach(node -> {
-            int row = GridPane.getRowIndex(node);
-            int col = GridPane.getColumnIndex(node);
-
-            GridCell cell = new GridCell(node.toString(), row, col);
-
-            gameBoardState.add(cell);
-        });
-
+        GameState gameStateToBeSaved = new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(), blueLivesLabel.getText(), dragonPosition, stepButton.getText());
 
         FileUtils.saveGame(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText());
@@ -442,6 +450,73 @@ public class HelloController {
 
             DialogUtils.showDialog(Alert.AlertType.INFORMATION,
                     "Game loaded!", "Your game has been successfully loaded!");
+        }
+    }
+
+    public void generateDocumentation() {
+
+        String projectPath = System.getProperty("user.dir");
+        Path targetPath = Path.of(projectPath, "target");
+
+        String headerHtml = """
+                <!DOCTYPE html>
+                <html>
+                <head>
+                <title>Clank! game documentation</title>
+                </head>
+                <body>
+                                
+                                
+                """;
+
+        try (Stream<Path> paths = Files.walk(targetPath)) {
+            List<String> classFiles = paths
+                    .map(Path::toString)
+                    .filter(file -> file.endsWith(".class"))
+                    .filter(file -> !file.endsWith("module-info.class"))
+                    .toList();
+
+            for (String classFile : classFiles) {
+                String fullyQualifiedName= getFullyQualifiedName(classFile);
+
+                Class<?> deserializedClass = Class.forName(fullyQualifiedName);
+
+                headerHtml += "<h2>" + fullyQualifiedName + "</h2>";
+                headerHtml += "<ul>";
+
+
+                Field[] classFields = deserializedClass.getDeclaredFields();
+                for (Field field : classFields) {
+                    headerHtml+=("<li>");
+                    appendModifier(field.getModifiers());
+                    headerHtml+=field.getType().getTypeName()+ '\n';
+                    headerHtml += field.getName() + '\n';
+                    headerHtml+="</li>";
+                }
+
+                headerHtml += "</ul>";
+            }
+
+            String footerHtml = """
+                    </body>
+                    </html>
+                    """;
+
+            String generatedHtml = headerHtml + footerHtml;
+
+
+            Path documentationFilePath = Path.of("files/documentation.html");
+            DialogUtils.showDialog(Alert.AlertType.INFORMATION,
+                    "Documentation  generated!", "Documentation has been successfully generated!");
+
+
+            Files.write(documentationFilePath, generatedHtml.getBytes());
+        } catch (IOException | ClassNotFoundException e) {
+            DialogUtils.showDialog(Alert.AlertType.INFORMATION,
+                    "Error!", "An error occurred during documentation generation!");
+
+
+            throw new RuntimeException(e);
         }
     }
 

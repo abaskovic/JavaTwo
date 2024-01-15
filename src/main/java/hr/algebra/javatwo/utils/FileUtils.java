@@ -9,9 +9,10 @@ import javafx.scene.control.Button;
 import java.io.*;
 import java.util.List;
 
+import static hr.algebra.javatwo.model.Constants.FILE_NAME;
+
 public class FileUtils {
 
-    public static final String FILE_NAME = "savedGame.dat";
 
     public static void saveGame(
             List<GridCell> gameBoardState,
@@ -41,7 +42,7 @@ public class FileUtils {
         GameState recoveredGameState;
 
         try(ObjectInputStream ois = new ObjectInputStream(
-                new FileInputStream(FileUtils.FILE_NAME))) {
+                new FileInputStream(FILE_NAME))) {
             recoveredGameState = (GameState) ois.readObject();
         }
         catch(Exception ex) {
