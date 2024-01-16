@@ -3,10 +3,27 @@ package hr.algebra.javatwo.model;
 import java.io.Serializable;
 import java.util.List;
 
-public class GameState  implements Serializable {
+public class GameState implements Serializable {
+
+
+    @Override
+    public String toString() {
+        return "GameState{" +
+                "gameBoardState=" + gameBoardState +
+                ", timeInSeconds=" + timeInSeconds +
+                ", bag=" + bag +
+                ", clank=" + clank +
+                ", redPlayerTurn=" + redPlayerTurn +
+                ", redLives='" + redLives + '\'' +
+                ", blueLives='" + blueLives + '\'' +
+                ", dragonPosition=" + dragonPosition +
+                ", lastStep='" + lastStep + '\'' +
+                '}';
+    }
 
     private static final long serialVersionUID = 1L;
-    public GameState(List<GridCell> gameBoardState, int timeInSeconds, List<ClankColor> bag, List<ClankColor> clank, boolean redPlayerTurn, String redLives, String blueLives, int dragonPosition, String lastStep) {
+
+    public GameState(List<GridCell> gameBoardState, int timeInSeconds, List<ClankColor> bag, List<ClankColor> clank, boolean redPlayerTurn, String redLives, String blueLives, int dragonPosition, String lastStep, String winner) {
         this.gameBoardState = gameBoardState;
         this.timeInSeconds = timeInSeconds;
         this.bag = bag;
@@ -16,6 +33,21 @@ public class GameState  implements Serializable {
         this.blueLives = blueLives;
         this.dragonPosition = dragonPosition;
         this.lastStep = lastStep;
+        this.winner=winner;
+    }
+
+
+    public GameState(String lastStep) {
+        this.gameBoardState = null;
+        this.timeInSeconds = 0;
+        this.bag = null;
+        this.clank = null;
+        this.redPlayerTurn = false;
+        this.redLives = null;
+        this.blueLives = null;
+        this.dragonPosition = 0;
+        this.lastStep = lastStep;
+        this.winner=null;
     }
 
 
@@ -28,6 +60,8 @@ public class GameState  implements Serializable {
     private final String blueLives;
     private final int dragonPosition;
     private final String lastStep;
+    private final String winner;
+
 
     public List<GridCell> getGameBoardState() {
         return gameBoardState;
@@ -59,7 +93,6 @@ public class GameState  implements Serializable {
     }
 
 
-
     public String getBlueLives() {
         return blueLives;
     }
@@ -75,5 +108,7 @@ public class GameState  implements Serializable {
     }
 
 
-
+    public String getWinner() {
+        return winner;
+    }
 }

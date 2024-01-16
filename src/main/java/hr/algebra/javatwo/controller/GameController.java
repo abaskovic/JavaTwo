@@ -1,8 +1,9 @@
 package hr.algebra.javatwo.controller;
 
-import hr.algebra.javatwo.model.ClankColor;
-import hr.algebra.javatwo.model.GameState;
-import hr.algebra.javatwo.model.GridCell;
+import hr.algebra.javatwo.GameApplication;
+import hr.algebra.javatwo.chat.service.RemoteChatService;
+import hr.algebra.javatwo.chat.service.RemoteChetServiceImpl;
+import hr.algebra.javatwo.model.*;
 import hr.algebra.javatwo.utils.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -10,9 +11,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
@@ -22,10 +21,13 @@ import javafx.util.Duration;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -81,18 +83,53 @@ public class GameController {
     @FXML
     private Label playerLabel;
 
+    @FXML
+    private TextField chatMessageTextField;
 
-    private boolean redPlayerTurn = true;
-    private List<ClankColor> bag = new ArrayList<>();
-    private List<ClankColor> clank = new ArrayList<>();
-    private int dragonPosition = 0;
+    @FXML
+    private TextArea chatMessagesTextArea;
 
-    private int timeInSeconds;
 
-    private Timeline timeline;
+
+    private  boolean redPlayerTurn = true;
+    private  List<ClankColor> bag = new ArrayList<>();
+    private  List<ClankColor> clank = new ArrayList<>();
+    private  int dragonPosition = 0;
+
+    private static int timeInSeconds;
+    private static String winner;
+
+    private static Timeline timeline;
+
+    private RemoteChatService remoteChatService;
+
+    public void StartRmiRemoteChatClient() {
+        try {
+            Registry registry = LocateRegistry.getRegistry(NetworkConfiguration.HOST, NetworkConfiguration.RMI_PORT);
+            remoteChatService = (RemoteChatService) registry.lookup(RemoteChatService.REMOTE_CHAT_OBJECT_NAME);
+
+
+        } catch (RemoteException | NotBoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void StartRmiRemoteChatServer() {
+        try {
+            Registry registry = LocateRegistry.createRegistry(NetworkConfiguration.RMI_PORT);
+            RemoteChatService remoteService = new RemoteChetServiceImpl();
+            RemoteChatService skeleton = (RemoteChatService) UnicastRemoteObject.exportObject(remoteService,
+                    NetworkConfiguration.RANDOM_PORT_HINT);
+            registry.rebind(RemoteChatService.REMOTE_CHAT_OBJECT_NAME, skeleton);
+            System.err.println("Object registered in RMI registry");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
 
     public void initialize() {
-        stepButton.setDisable(false);
+
         skipButton.setDisable(true);
         useButton.setDisable(true);
         newGameButton.setVisible(false);
@@ -113,15 +150,28 @@ public class GameController {
         goldImage.setVisible(false);
 
 
-        for (int i = 0; i < NUM_DRAGONS; i++) {
-            placeDragons();
+
+
+        if (GameApplication.loggedInRoleName.equals(RoleName.SERVER) ) {
+            stepButton.setDisable(true);
+            StartRmiRemoteChatServer();
+
+        } else {
+            stepButton.setDisable(false);
+            StartRmiRemoteChatClient();
+            for (int i = 0; i < NUM_DRAGONS; i++) {
+                placeDragons();
+            }
         }
+
+
 
         for (int i = 0; i < NUM_DRAGONS_IN_BAG; i++) {
             bag.add(ClankColor.D);
         }
-
         StartTimer();
+
+
     }
 
     private void StartTimer() {
@@ -185,22 +235,33 @@ public class GameController {
     @FXML
     protected void onStepButtonClick() {
         rollDice();
-        List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
-        GameState gameStateToSendToServer = new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(), blueLivesLabel.getText(), dragonPosition, stepButton.getText());
+        SendGameState(new GameState(stepButton.getText()));
+    }
 
-        NetworkingUtils.sendGameStateToServer(gameStateToSendToServer);
-
+    private void SendGameState(GameState gameStateToSend) {
+        if (GameApplication.loggedInRoleName.equals(RoleName.CLIENT)) {
+            NetworkingUtils.sendGameStateToServer(gameStateToSend);
+        } else {
+            NetworkingUtils.sendGameStateToClient(gameStateToSend);
+        }
 
     }
 
     @FXML
     protected void onUseButtonClick() {
         useSteps();
+        List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
+        SendGameState(new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(), blueLivesLabel.getText(), dragonPosition, stepButton.getText(), winner));
+        stepButton.setDisable(true);
+        skipButton.setDisable(true);
+        useButton.setDisable(true);
     }
 
     @FXML
     protected void onSkipButtonClick() {
         switchPlayer();
+        List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
+        SendGameState(new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(), blueLivesLabel.getText(), dragonPosition, stepButton.getText(), winner));
     }
 
     private void rollDice() {
@@ -230,6 +291,7 @@ public class GameController {
     private void switchPlayer() {
         stepButton.setDisable(false);
         useButton.setDisable(true);
+        skipButton.setDisable(true);
         redPlayerTurn = !redPlayerTurn;
         playerLabel.setText(redPlayerTurn ? "Red" : "Blue");
         playerLabel.setTextFill(redPlayerTurn ? Color.RED : Color.BLUE);
@@ -242,17 +304,20 @@ public class GameController {
         int blueLives = Integer.parseInt(blueLivesLabel.getText());
 
         if (redLives < 1) {
-            AlertWinner("Blue");
+            winner = "Blue";
+            AlertWinner();
             return true;
         }
         if (blueLives < 1) {
-            AlertWinner("Red");
+            winner = "Blue";
+            AlertWinner();
+
             return true;
         }
         return false;
     }
 
-    private void AlertWinner(String winner) {
+    private void AlertWinner() {
         DialogUtils.showDialog(Alert.AlertType.INFORMATION,
                 "Game Finished!", "Winner is " + winner + " player");
         newGameButton.setVisible(true);
@@ -302,7 +367,8 @@ public class GameController {
         addPaneRectangle(redPlayerTurn ? Color.RED : Color.BLUE, rectangleAdd, clankPane, false);
 
         if (stepOnGold(currentCol, currentRow)) {
-            AlertWinner(redPlayerTurn ? "Red" : "Blue");
+            winner = redPlayerTurn ? "Red" : "Blue";
+            AlertWinner();
         }
 
         if (stepOnDragon(currentCol, currentRow)) {
@@ -397,10 +463,45 @@ public class GameController {
     public void saveGame() {
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
 
-        GameState gameStateToBeSaved = new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(), blueLivesLabel.getText(), dragonPosition, stepButton.getText());
-
         FileUtils.saveGame(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText());
+    }
+
+
+    public void RefreshGameBoard(GameState gameState) {
+
+        if (gameState.getWinner() != null) {
+            System.out.println(gameState.getWinner());
+            winner = gameState.getWinner();
+            AlertWinner();
+        }
+
+        redPlayerTurn = !gameState.isRedPlayerTurn();
+        switchPlayer();
+
+        timeInSeconds = gameState.getTimeInSeconds();
+        timeline.stop();
+        StartTimer();
+
+
+        SetBoardGameElements(gameState);
+
+        bag.clear();
+        bag = gameState.getBag();
+        clank.clear();
+        clank = gameState.getClank();
+        clankPane.getChildren().clear();
+        clank.forEach(clankColor -> addPaneRectangle(clankColor.equals(ClankColor.R) ? Color.RED : Color.BLUE, 1, clankPane, true));
+
+        redLivesLabel.setText(gameState.getRedLives());
+        blueLivesLabel.setText(gameState.getBlueLives());
+        dragonPosition = gameState.getDragonPosition();
+        GridPane.setColumnIndex(dragonStepImage, dragonPosition);
+    }
+
+    public void RefreshStepButton(GameState gameState) {
+        stepButton.setText(gameState.getLastStep());
+
     }
 
     public void loadGame() {
@@ -409,25 +510,7 @@ public class GameController {
 
         if (recoveredGameState != null) {
 
-            List<GridCell> gameBoardState = recoveredGameState.getGameBoardState();
-            boardGridPane.getChildren().clear();
-            gameBoardState.forEach(cell -> {
-                String node = cell.getNode();
-                int startIndex = node.indexOf("id=");
-                if (startIndex != -1) {
-                    int endIndex = node.indexOf(",");
-                    String id = node.substring(startIndex + 3, endIndex);
-                    if (id.contains("red")) {
-                        boardGridPane.add(redPlayerImage, cell.getCol(), cell.getRow());
-                    } else if (id.contains("blue")) {
-                        boardGridPane.add(bluePlayerImage, cell.getCol(), cell.getRow());
-                    } else if (id.contains("gold")) {
-                        boardGridPane.add(goldImage, cell.getCol(), cell.getRow());
-                    }
-                } else {
-                    addDragon(cell.getCol(), cell.getRow());
-                }
-            });
+            SetBoardGameElements(recoveredGameState);
 
             timeInSeconds = recoveredGameState.getTimeInSeconds();
             timeline.stop();
@@ -451,6 +534,28 @@ public class GameController {
             DialogUtils.showDialog(Alert.AlertType.INFORMATION,
                     "Game loaded!", "Your game has been successfully loaded!");
         }
+    }
+
+    private void SetBoardGameElements(GameState recoveredGameState) {
+        List<GridCell> gameBoardState = recoveredGameState.getGameBoardState();
+        boardGridPane.getChildren().clear();
+        gameBoardState.forEach(cell -> {
+            String node = cell.getNode();
+            int startIndex = node.indexOf("id=");
+            if (startIndex != -1) {
+                int endIndex = node.indexOf(",");
+                String id = node.substring(startIndex + 3, endIndex);
+                if (id.contains("red")) {
+                    boardGridPane.add(redPlayerImage, cell.getCol(), cell.getRow());
+                } else if (id.contains("blue")) {
+                    boardGridPane.add(bluePlayerImage, cell.getCol(), cell.getRow());
+                } else if (id.contains("gold")) {
+                    boardGridPane.add(goldImage, cell.getCol(), cell.getRow());
+                }
+            } else {
+                addDragon(cell.getCol(), cell.getRow());
+            }
+        });
     }
 
     public void generateDocumentation() {
@@ -477,7 +582,7 @@ public class GameController {
                     .toList();
 
             for (String classFile : classFiles) {
-                String fullyQualifiedName= getFullyQualifiedName(classFile);
+                String fullyQualifiedName = getFullyQualifiedName(classFile);
 
                 Class<?> deserializedClass = Class.forName(fullyQualifiedName);
 
@@ -487,11 +592,11 @@ public class GameController {
 
                 Field[] classFields = deserializedClass.getDeclaredFields();
                 for (Field field : classFields) {
-                    headerHtml+=("<li>");
+                    headerHtml += ("<li>");
                     appendModifier(field.getModifiers());
-                    headerHtml+=field.getType().getTypeName()+ '\n';
+                    headerHtml += field.getType().getTypeName() + '\n';
                     headerHtml += field.getName() + '\n';
-                    headerHtml+="</li>";
+                    headerHtml += "</li>";
                 }
 
                 headerHtml += "</ul>";
@@ -519,5 +624,21 @@ public class GameController {
             throw new RuntimeException(e);
         }
     }
+
+    public void sendMessage(){
+        String message = chatMessageTextField.getText();
+        try {
+            remoteChatService.sendMessage(GameApplication.loggedInRoleName + ": " + message);
+            List<String> chatMessages = remoteChatService.getAllChatMessages();
+
+            for (String msg : chatMessages){
+                chatMessagesTextArea.appendText(msg + "\n");
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
 
 }

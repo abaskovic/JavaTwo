@@ -25,7 +25,7 @@ public class FileUtils {
             int dragonPosition,
             String lastStep
     ) {
-        GameState gameStateToBeSaved = new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLives, blueLives, dragonPosition, lastStep);
+        GameState gameStateToBeSaved = new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLives, blueLives, dragonPosition, lastStep, null);
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             oos.writeObject(gameStateToBeSaved);
             DialogUtils.showDialog(Alert.AlertType.INFORMATION,

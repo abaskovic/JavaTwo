@@ -9,21 +9,27 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class NetworkingUtils {
-    public  static  void  sendGameStateToServer(GameState gameState){
+    public static void sendGameStateToServer(GameState gameState) {
+        try (Socket clientSocket = new Socket(NetworkConfiguration.HOST, NetworkConfiguration.SERVER_PORT)) {
+            System.err.println("Client is connecting to " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
 
-        try (Socket cleintSocket = new Socket(NetworkConfiguration.SERVER_HOST,NetworkConfiguration.SERVER_PORT)){
-            sendSerializableRequest(cleintSocket, gameState);
+            sendSerializableRequest(clientSocket, gameState);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-
+    }public static void sendGameStateToClient(GameState gameState) {
+        try (Socket clientSocket = new Socket(NetworkConfiguration.HOST, NetworkConfiguration.CLIENT_PORT)) {
+            System.err.println("Client is connecting to " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
+            sendSerializableRequest(clientSocket, gameState);
+        } catch (IOException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static void sendSerializableRequest(Socket cleintSocket, GameState gameState) throws IOException, ClassNotFoundException {
-        ObjectInputStream objectInputStream = new ObjectInputStream(cleintSocket.getInputStream());
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(cleintSocket.getOutputStream());
-        objectOutputStream.writeObject(gameState);
-        System.out.println("msg server " + objectInputStream.readObject());
-
+        ObjectOutputStream oos = new ObjectOutputStream(cleintSocket.getOutputStream());
+        oos.writeObject(gameState);
     }
+
+
 }

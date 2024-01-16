@@ -10,6 +10,16 @@ public class GridCell implements Serializable {
 
     private String node;
     private int row;
+
+    @Override
+    public String toString() {
+        return "GridCell{" +
+                "node='" + node + '\'' +
+                ", row=" + row +
+                ", col=" + col +
+                '}';
+    }
+
     private  int col;
 
     public GridCell(String node, int row, int col) {
