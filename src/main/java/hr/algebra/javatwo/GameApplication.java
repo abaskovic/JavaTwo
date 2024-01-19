@@ -72,10 +72,8 @@ public class GameApplication extends Application {
 
 
     private static void startServer() {
-        System.out.println("Server");
         acceptRequestsServer();
     }
-
 
     private static void acceptRequestsServer() {
         try (ServerSocket serverSocket = new ServerSocket(NetworkConfiguration.SERVER_PORT)) {

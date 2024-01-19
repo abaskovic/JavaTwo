@@ -1,9 +1,10 @@
 package hr.algebra.javatwo.controller;
 
 import hr.algebra.javatwo.GameApplication;
-import hr.algebra.javatwo.chat.service.RemoteChatService;
-import hr.algebra.javatwo.chat.service.RemoteChetServiceImpl;
-import hr.algebra.javatwo.model.*;
+import hr.algebra.javatwo.model.ClankColor;
+import hr.algebra.javatwo.model.GameState;
+import hr.algebra.javatwo.model.GridCell;
+import hr.algebra.javatwo.model.RoleName;
 import hr.algebra.javatwo.utils.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -17,17 +18,13 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.rmi.NotBoundException;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,46 +84,17 @@ public class GameController {
     private TextField chatMessageTextField;
 
     @FXML
-    private TextArea chatMessagesTextArea;
+    private TextFlow chatMessagesTextFlow;
 
 
+    private boolean redPlayerTurn = true;
+    private List<ClankColor> bag = new ArrayList<>();
+    private List<ClankColor> clank = new ArrayList<>();
+    private int dragonPosition = 0;
 
-    private  boolean redPlayerTurn = true;
-    private  List<ClankColor> bag = new ArrayList<>();
-    private  List<ClankColor> clank = new ArrayList<>();
-    private  int dragonPosition = 0;
-
-    private static int timeInSeconds;
-    private static String winner;
-
-    private static Timeline timeline;
-
-    private RemoteChatService remoteChatService;
-
-    public void StartRmiRemoteChatClient() {
-        try {
-            Registry registry = LocateRegistry.getRegistry(NetworkConfiguration.HOST, NetworkConfiguration.RMI_PORT);
-            remoteChatService = (RemoteChatService) registry.lookup(RemoteChatService.REMOTE_CHAT_OBJECT_NAME);
-
-
-        } catch (RemoteException | NotBoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void StartRmiRemoteChatServer() {
-        try {
-            Registry registry = LocateRegistry.createRegistry(NetworkConfiguration.RMI_PORT);
-            RemoteChatService remoteService = new RemoteChetServiceImpl();
-            RemoteChatService skeleton = (RemoteChatService) UnicastRemoteObject.exportObject(remoteService,
-                    NetworkConfiguration.RANDOM_PORT_HINT);
-            registry.rebind(RemoteChatService.REMOTE_CHAT_OBJECT_NAME, skeleton);
-            System.err.println("Object registered in RMI registry");
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
+    private int timeInSeconds;
+    private String winner;
+    private Timeline timeline;
 
     public void initialize() {
 
@@ -149,21 +117,21 @@ public class GameController {
         dragonStepGridPane.add(dragonStepImage, 0, 0);
         goldImage.setVisible(false);
 
+        final Timeline timelineChat = ChatUtils.CheckMessages(chatMessagesTextFlow);
+        timelineChat.play();
 
 
-
-        if (GameApplication.loggedInRoleName.equals(RoleName.SERVER) ) {
+        if (GameApplication.loggedInRoleName.equals(RoleName.SERVER)) {
             stepButton.setDisable(true);
-            StartRmiRemoteChatServer();
+            ChatUtils.StartRmiRemoteChatServer();
 
         } else {
             stepButton.setDisable(false);
-            StartRmiRemoteChatClient();
+            ChatUtils.StartRmiRemoteChatClient();
             for (int i = 0; i < NUM_DRAGONS; i++) {
                 placeDragons();
             }
         }
-
 
 
         for (int i = 0; i < NUM_DRAGONS_IN_BAG; i++) {
@@ -171,8 +139,10 @@ public class GameController {
         }
         StartTimer();
 
+        chatMessageTextFieldAddEventListener();
 
     }
+
 
     private void StartTimer() {
 
@@ -238,6 +208,20 @@ public class GameController {
         SendGameState(new GameState(stepButton.getText()));
     }
 
+    @FXML
+    public void onSendButtonClick() {
+        ChatUtils.sendMessage(chatMessageTextField.getText());
+        chatMessageTextField.clear();
+    }
+
+    private void chatMessageTextFieldAddEventListener() {
+        chatMessageTextField.setOnKeyPressed(event -> {
+            if (event.getCode().getName().equals("Enter")) {
+                onSendButtonClick();
+            }
+        });
+    }
+
     private void SendGameState(GameState gameStateToSend) {
         if (GameApplication.loggedInRoleName.equals(RoleName.CLIENT)) {
             NetworkingUtils.sendGameStateToServer(gameStateToSend);
@@ -271,10 +255,7 @@ public class GameController {
         Random random = new Random();
         int step = random.nextInt(6) + 1;
         stepButton.setText(Integer.toString(step));
-
-
     }
-
     private void useSteps() {
         stepButton.setDisable(false);
         skipButton.setDisable(true);
@@ -284,8 +265,6 @@ public class GameController {
         movePlayer(currentPlayer, step);
         if (GridPane.getColumnIndex(dragonStepImage) < 5) MoveDragon();
         switchPlayer();
-
-
     }
 
     private void switchPlayer() {
@@ -295,8 +274,6 @@ public class GameController {
         redPlayerTurn = !redPlayerTurn;
         playerLabel.setText(redPlayerTurn ? "Red" : "Blue");
         playerLabel.setTextFill(redPlayerTurn ? Color.RED : Color.BLUE);
-
-
     }
 
     private boolean CheckWinner() {
@@ -623,21 +600,6 @@ public class GameController {
 
             throw new RuntimeException(e);
         }
-    }
-
-    public void sendMessage(){
-        String message = chatMessageTextField.getText();
-        try {
-            remoteChatService.sendMessage(GameApplication.loggedInRoleName + ": " + message);
-            List<String> chatMessages = remoteChatService.getAllChatMessages();
-
-            for (String msg : chatMessages){
-                chatMessagesTextArea.appendText(msg + "\n");
-            }
-        } catch (RemoteException e) {
-            throw new RuntimeException(e);
-        }
-
     }
 
 

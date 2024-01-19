@@ -3,17 +3,18 @@ package hr.algebra.javatwo.chat.service;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RemoteChetServiceImpl implements RemoteChatService {
+public class RemoteChatServiceImpl implements RemoteChatService {
 
     private List<String> chatMessages;
 
-    public RemoteChetServiceImpl() {
+    public RemoteChatServiceImpl() {
         chatMessages = new ArrayList<>();
     }
 
     @Override
     public void sendMessage(String sendMessages) throws RuntimeException {
         chatMessages.add(sendMessages);
+        List<String> messagesList =  getAllChatMessages();
     }
 
     @Override

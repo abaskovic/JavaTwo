@@ -1,7 +1,7 @@
 package hr.algebra.javatwo.utils;
 
 import hr.algebra.javatwo.chat.service.RemoteChatService;
-import hr.algebra.javatwo.chat.service.RemoteChetServiceImpl;
+import hr.algebra.javatwo.chat.service.RemoteChatServiceImpl;
 import hr.algebra.javatwo.model.NetworkConfiguration;
 
 import java.rmi.NotBoundException;
@@ -15,7 +15,7 @@ public class RmiUtils {
     public static void StartRmiRemoteChatServer() {
         try {
             Registry registry = LocateRegistry.createRegistry(NetworkConfiguration.RMI_PORT);
-            RemoteChatService remoteService = new RemoteChetServiceImpl();
+            RemoteChatService remoteService = new RemoteChatServiceImpl();
             RemoteChatService skeleton = (RemoteChatService) UnicastRemoteObject.exportObject(remoteService,
                     NetworkConfiguration.RANDOM_PORT_HINT);
             registry.rebind(RemoteChatService.REMOTE_CHAT_OBJECT_NAME, skeleton);
