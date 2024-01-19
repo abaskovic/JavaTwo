@@ -12,14 +12,15 @@ import java.util.Properties;
 public class ConfigurationReader {
 
     private static ConfigurationReader reader;
-    private Hashtable<String, String> environment;
+    private final Hashtable<String, String> environment;
 
     public ConfigurationReader() {
         System.out.println("sss");
         environment = new Hashtable<>();
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.fscontext.RefFSContextFactory");
         String currentDirectory = System.getProperty("user.dir");
-        environment.put(Context.PROVIDER_URL, "file:D:/configuration");
+        environment.put(Context.PROVIDER_URL, "file:"+currentDirectory+"\\configuration");
+
     }
 
 
@@ -32,10 +33,10 @@ public class ConfigurationReader {
 
     public String readStringValueForKey(ConfigurationKey configurationKey) {
 
-        String valueForKey = "";
+        String valueForKey;
 
         try (InitialDirContextCloseable contextCloseable = new InitialDirContextCloseable(environment)) {
-            searchForKey(contextCloseable, configurationKey);
+            valueForKey =  searchForKey(contextCloseable, configurationKey);
             return valueForKey;
         } catch (NamingException e) {
             throw new RuntimeException(e);

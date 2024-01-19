@@ -3,16 +3,14 @@ package hr.algebra.javatwo.utils;
 import hr.algebra.javatwo.GameApplication;
 import hr.algebra.javatwo.chat.service.RemoteChatService;
 import hr.algebra.javatwo.chat.service.RemoteChatServiceImpl;
-import hr.algebra.javatwo.model.NetworkConfiguration;
+import hr.algebra.javatwo.model.ConfigurationKey;
+import hr.algebra.javatwo.model.ConfigurationReader;
 import hr.algebra.javatwo.model.RoleName;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextAlignment;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
@@ -28,11 +26,14 @@ import java.util.List;
 public class ChatUtils {
 
     private static RemoteChatService remoteChatService;
+    private static final int rmiPort = ConfigurationReader.getInstance().readIntegerValueForKey(ConfigurationKey.RMI_PORT);
 
     public static void StartRmiRemoteChatClient() {
 
+
+        String host = ConfigurationReader.getInstance().readStringValueForKey(ConfigurationKey.HOST);
         try {
-            Registry registry = LocateRegistry.getRegistry(NetworkConfiguration.HOST, NetworkConfiguration.RMI_PORT);
+            Registry registry = LocateRegistry.getRegistry(host, rmiPort);
             remoteChatService = (RemoteChatService) registry.lookup(RemoteChatService.REMOTE_CHAT_OBJECT_NAME);
         } catch (RemoteException | NotBoundException e) {
             e.printStackTrace();
@@ -40,11 +41,11 @@ public class ChatUtils {
     }
 
     public static void StartRmiRemoteChatServer() {
+        int randomPortHint = ConfigurationReader.getInstance().readIntegerValueForKey(ConfigurationKey.RANDOM_PORT_HINT);
         try {
-            Registry registry = LocateRegistry.createRegistry(NetworkConfiguration.RMI_PORT);
+            Registry registry = LocateRegistry.createRegistry(rmiPort);
             remoteChatService = new RemoteChatServiceImpl();
-            RemoteChatService skeleton = (RemoteChatService) UnicastRemoteObject.exportObject(remoteChatService,
-                    NetworkConfiguration.RANDOM_PORT_HINT);
+            RemoteChatService skeleton = (RemoteChatService) UnicastRemoteObject.exportObject(remoteChatService,randomPortHint);
             registry.rebind(RemoteChatService.REMOTE_CHAT_OBJECT_NAME, skeleton);
         } catch (RemoteException e) {
             e.printStackTrace();

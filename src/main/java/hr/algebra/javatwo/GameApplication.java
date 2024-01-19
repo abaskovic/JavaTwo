@@ -1,9 +1,7 @@
 package hr.algebra.javatwo;
 
 import hr.algebra.javatwo.controller.GameController;
-import hr.algebra.javatwo.model.GameState;
-import hr.algebra.javatwo.model.NetworkConfiguration;
-import hr.algebra.javatwo.model.RoleName;
+import hr.algebra.javatwo.model.*;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -12,7 +10,6 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -33,7 +30,7 @@ public class GameApplication extends Application {
 
     public static void main(String[] args) {
         String inputRoleName = args[0];
-        Boolean userLoggedIn = false;
+        boolean userLoggedIn = false;
 
         for (RoleName roleName : RoleName.values()) {
             if (roleName.name().equals(inputRoleName)) {
@@ -58,16 +55,8 @@ public class GameApplication extends Application {
     }
 
     private static void acceptRequestsClient() {
-        try (ServerSocket serverSocket = new ServerSocket(NetworkConfiguration.CLIENT_PORT)) {
-            System.err.println("Server listening on port: " + serverSocket.getLocalPort());
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.err.println("Client connected from port: " + clientSocket.getPort());
-                new Thread(() -> processSerializableClient(clientSocket)).start();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+       Integer clientPort = ConfigurationReader.getInstance().readIntegerValueForKey(ConfigurationKey.CLIENT_PORT);
+        StartServer(clientPort);
     }
 
 
@@ -76,7 +65,12 @@ public class GameApplication extends Application {
     }
 
     private static void acceptRequestsServer() {
-        try (ServerSocket serverSocket = new ServerSocket(NetworkConfiguration.SERVER_PORT)) {
+        Integer serverPort = ConfigurationReader.getInstance().readIntegerValueForKey(ConfigurationKey.SERVER_PORT);
+        StartServer(serverPort);
+    }
+
+    private static void StartServer(Integer serverPort) {
+        try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
             System.err.println("Server listening on port: " + serverSocket.getLocalPort());
 
             while (true) {
@@ -97,9 +91,7 @@ public class GameApplication extends Application {
                     controller.RefreshStepButton(gameState);
                 });
             } else {
-                Platform.runLater(() -> {
-                    controller.RefreshGameBoard(gameState);
-                });
+                Platform.runLater(() -> controller.RefreshGameBoard(gameState));
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();

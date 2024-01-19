@@ -1,24 +1,32 @@
 package hr.algebra.javatwo.utils;
 
+import hr.algebra.javatwo.model.ConfigurationKey;
+import hr.algebra.javatwo.model.ConfigurationReader;
 import hr.algebra.javatwo.model.GameState;
-import hr.algebra.javatwo.model.NetworkConfiguration;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class NetworkingUtils {
+    private static final String host = ConfigurationReader.getInstance().readStringValueForKey(ConfigurationKey.HOST);
+
     public static void sendGameStateToServer(GameState gameState) {
-        try (Socket clientSocket = new Socket(NetworkConfiguration.HOST, NetworkConfiguration.SERVER_PORT)) {
+        int serverPort = ConfigurationReader.getInstance().readIntegerValueForKey(ConfigurationKey.SERVER_PORT);
+
+        try (Socket clientSocket = new Socket(host, serverPort)) {
             System.err.println("Client is connecting to " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
 
             sendSerializableRequest(clientSocket, gameState);
         } catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-    }public static void sendGameStateToClient(GameState gameState) {
-        try (Socket clientSocket = new Socket(NetworkConfiguration.HOST, NetworkConfiguration.CLIENT_PORT)) {
+    }
+
+    public static void sendGameStateToClient(GameState gameState) {
+        int clientPort = ConfigurationReader.getInstance().readIntegerValueForKey(ConfigurationKey.CLIENT_PORT);
+
+        try (Socket clientSocket = new Socket(host, clientPort)) {
             System.err.println("Client is connecting to " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
             sendSerializableRequest(clientSocket, gameState);
         } catch (IOException | ClassNotFoundException e) {
@@ -30,6 +38,7 @@ public class NetworkingUtils {
         ObjectOutputStream oos = new ObjectOutputStream(cleintSocket.getOutputStream());
         oos.writeObject(gameState);
     }
+
 
 
 }

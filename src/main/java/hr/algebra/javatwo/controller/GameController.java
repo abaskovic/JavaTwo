@@ -8,10 +8,8 @@ import hr.algebra.javatwo.model.RoleName;
 import hr.algebra.javatwo.utils.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -21,20 +19,16 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static hr.algebra.javatwo.model.Constants.*;
-import static hr.algebra.javatwo.utils.DocumentationUtils.appendModifier;
-import static hr.algebra.javatwo.utils.DocumentationUtils.getFullyQualifiedName;
+import static hr.algebra.javatwo.utils.DocumentationUtils.*;
+import static hr.algebra.javatwo.utils.GameUtils.stepOnDragon;
+import static hr.algebra.javatwo.utils.GameUtils.stepOnGold;
 
 public class GameController {
 
@@ -209,6 +203,11 @@ public class GameController {
     }
 
     @FXML
+    protected void generateDocumentationClick() {
+        generateDocumentation();
+    }
+
+    @FXML
     public void onSendButtonClick() {
         ChatUtils.sendMessage(chatMessageTextField.getText());
         chatMessageTextField.clear();
@@ -256,6 +255,7 @@ public class GameController {
         int step = random.nextInt(6) + 1;
         stepButton.setText(Integer.toString(step));
     }
+
     private void useSteps() {
         stepButton.setDisable(false);
         skipButton.setDisable(true);
@@ -283,12 +283,13 @@ public class GameController {
         if (redLives < 1) {
             winner = "Blue";
             AlertWinner();
+            timeline.stop();
             return true;
         }
         if (blueLives < 1) {
-            winner = "Blue";
+            winner = "Red";
             AlertWinner();
-
+            timeline.stop();
             return true;
         }
         return false;
@@ -343,12 +344,12 @@ public class GameController {
 
         addPaneRectangle(redPlayerTurn ? Color.RED : Color.BLUE, rectangleAdd, clankPane, false);
 
-        if (stepOnGold(currentCol, currentRow)) {
+        if (stepOnGold(currentCol, currentRow, boardGridPane)) {
             winner = redPlayerTurn ? "Red" : "Blue";
             AlertWinner();
         }
 
-        if (stepOnDragon(currentCol, currentRow)) {
+        if (stepOnDragon(currentCol, currentRow, boardGridPane)) {
             bag.addAll(clank);
             Collections.shuffle(bag);
 
@@ -402,44 +403,8 @@ public class GameController {
 
     }
 
-    private boolean stepOnDragon(int col, int row) {
-        Node node = getNodeByRowColIndex(col, row, boardGridPane);
-        return node instanceof Label;
-    }
-
-
-    private boolean stepOnGold(int col, int row) {
-        Node node = getNodeByRowColIndex(col, row, boardGridPane);
-        return node instanceof ImageView;
-
-    }
-
-    private Node getNodeByRowColIndex(int col, int row, GridPane gridPane) {
-        Node res = null;
-        ObservableList<Node> children = gridPane.getChildren();
-
-        for (Node n : children) {
-            if (GridPane.getColumnIndex(n) != null && GridPane.getColumnIndex(n) == col && GridPane.getRowIndex(n) != null && GridPane.getRowIndex(n) == row) {
-                if (!(n instanceof ImageView image)) {
-                    res = n;
-                    break;
-                } else {
-                    String url = image.getImage().getUrl();
-                    if (url.contains("gold.png")) {
-                        res = n;
-                    }
-                }
-
-            }
-
-        }
-        return res;
-    }
-
-
     public void saveGame() {
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
-
         FileUtils.saveGame(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText());
     }
@@ -535,72 +500,6 @@ public class GameController {
         });
     }
 
-    public void generateDocumentation() {
-
-        String projectPath = System.getProperty("user.dir");
-        Path targetPath = Path.of(projectPath, "target");
-
-        String headerHtml = """
-                <!DOCTYPE html>
-                <html>
-                <head>
-                <title>Clank! game documentation</title>
-                </head>
-                <body>
-                                
-                                
-                """;
-
-        try (Stream<Path> paths = Files.walk(targetPath)) {
-            List<String> classFiles = paths
-                    .map(Path::toString)
-                    .filter(file -> file.endsWith(".class"))
-                    .filter(file -> !file.endsWith("module-info.class"))
-                    .toList();
-
-            for (String classFile : classFiles) {
-                String fullyQualifiedName = getFullyQualifiedName(classFile);
-
-                Class<?> deserializedClass = Class.forName(fullyQualifiedName);
-
-                headerHtml += "<h2>" + fullyQualifiedName + "</h2>";
-                headerHtml += "<ul>";
-
-
-                Field[] classFields = deserializedClass.getDeclaredFields();
-                for (Field field : classFields) {
-                    headerHtml += ("<li>");
-                    appendModifier(field.getModifiers());
-                    headerHtml += field.getType().getTypeName() + '\n';
-                    headerHtml += field.getName() + '\n';
-                    headerHtml += "</li>";
-                }
-
-                headerHtml += "</ul>";
-            }
-
-            String footerHtml = """
-                    </body>
-                    </html>
-                    """;
-
-            String generatedHtml = headerHtml + footerHtml;
-
-
-            Path documentationFilePath = Path.of("files/documentation.html");
-            DialogUtils.showDialog(Alert.AlertType.INFORMATION,
-                    "Documentation  generated!", "Documentation has been successfully generated!");
-
-
-            Files.write(documentationFilePath, generatedHtml.getBytes());
-        } catch (IOException | ClassNotFoundException e) {
-            DialogUtils.showDialog(Alert.AlertType.INFORMATION,
-                    "Error!", "An error occurred during documentation generation!");
-
-
-            throw new RuntimeException(e);
-        }
-    }
 
 
 }
