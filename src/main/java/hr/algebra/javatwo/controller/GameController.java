@@ -1,10 +1,9 @@
 package hr.algebra.javatwo.controller;
 
 import hr.algebra.javatwo.GameApplication;
-import hr.algebra.javatwo.model.ClankColor;
-import hr.algebra.javatwo.model.GameState;
-import hr.algebra.javatwo.model.GridCell;
-import hr.algebra.javatwo.model.RoleName;
+import hr.algebra.javatwo.Threads.GetLastMoveThread;
+import hr.algebra.javatwo.Threads.SaveGameMoveThread;
+import hr.algebra.javatwo.model.*;
 import hr.algebra.javatwo.utils.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -19,6 +18,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.TextFlow;
 import javafx.util.Duration;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +41,8 @@ public class GameController {
     private Button skipButton;
     @FXML
     private Button newGameButton;
+    @FXML
+    private Button sendButton;
 
     @FXML
     private Label redLivesLabel;
@@ -72,7 +74,10 @@ public class GameController {
     @FXML
     private Label timerLabel;
     @FXML
-    private Label playerLabel;
+    private Label nextPlayerLabel;
+
+    @FXML
+    private Label lastMoveLabel;
 
     @FXML
     private TextField chatMessageTextField;
@@ -111,20 +116,35 @@ public class GameController {
         dragonStepGridPane.add(dragonStepImage, 0, 0);
         goldImage.setVisible(false);
 
-        final Timeline timelineChat = ChatUtils.CheckMessages(chatMessagesTextFlow);
-        timelineChat.play();
+
+        RoleName loggedInRole = GameApplication.loggedInRoleName;
+        switch (loggedInRole) {
+            case SERVER:
+                final Timeline timelineChat = ChatUtils.CheckMessages(chatMessagesTextFlow);
+                timelineChat.play();
+                stepButton.setDisable(true);
+                ChatUtils.StartRmiRemoteChatServer();
+                break;
+            case CLIENT:
+                stepButton.setDisable(false);
+                for (int i = 0; i < NUM_DRAGONS; i++) {
+                    placeDragons();
+                }
+                ChatUtils.StartRmiRemoteChatClient();
+                break;
+            case SINGLE_PLAYER:
+                stepButton.setDisable(false);
+                for (int i = 0; i < NUM_DRAGONS; i++) {
+                    placeDragons();
+                }
+                sendButton.setDisable(true);
+                chatMessageTextField.setDisable(true);
+                GetLastMoveThread getLastMoveThread = new GetLastMoveThread(lastMoveLabel);
+                Thread threadStarter = new Thread(getLastMoveThread);
+                threadStarter.start();
 
 
-        if (GameApplication.loggedInRoleName.equals(RoleName.SERVER)) {
-            stepButton.setDisable(true);
-            ChatUtils.StartRmiRemoteChatServer();
-
-        } else {
-            stepButton.setDisable(false);
-            ChatUtils.StartRmiRemoteChatClient();
-            for (int i = 0; i < NUM_DRAGONS; i++) {
-                placeDragons();
-            }
+                break;
         }
 
 
@@ -200,6 +220,7 @@ public class GameController {
     protected void onStepButtonClick() {
         rollDice();
         SendGameState(new GameState(stepButton.getText()));
+
     }
 
     @FXML
@@ -224,7 +245,7 @@ public class GameController {
     private void SendGameState(GameState gameStateToSend) {
         if (GameApplication.loggedInRoleName.equals(RoleName.CLIENT)) {
             NetworkingUtils.sendGameStateToServer(gameStateToSend);
-        } else {
+        } else if (GameApplication.loggedInRoleName.equals(RoleName.SERVER)) {
             NetworkingUtils.sendGameStateToClient(gameStateToSend);
         }
 
@@ -235,9 +256,15 @@ public class GameController {
         useSteps();
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
         SendGameState(new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(), blueLivesLabel.getText(), dragonPosition, stepButton.getText(), winner));
-        stepButton.setDisable(true);
-        skipButton.setDisable(true);
-        useButton.setDisable(true);
+        if (!GameApplication.loggedInRoleName.equals(RoleName.SINGLE_PLAYER)) {
+            stepButton.setDisable(true);
+            skipButton.setDisable(true);
+            useButton.setDisable(true);
+        }
+        GameMove gameMove = new GameMove(redPlayerTurn, Integer.parseInt(stepButton.getText()), LocalDateTime.now());
+        SaveGameMoveThread saveGameMoveThread = new SaveGameMoveThread(gameMove);
+        Thread threadStarter = new Thread(saveGameMoveThread);
+        threadStarter.start();
     }
 
     @FXML
@@ -272,8 +299,8 @@ public class GameController {
         useButton.setDisable(true);
         skipButton.setDisable(true);
         redPlayerTurn = !redPlayerTurn;
-        playerLabel.setText(redPlayerTurn ? "Red" : "Blue");
-        playerLabel.setTextFill(redPlayerTurn ? Color.RED : Color.BLUE);
+        nextPlayerLabel.setText(redPlayerTurn ? "Red" : "Blue");
+        nextPlayerLabel.setTextFill(redPlayerTurn ? Color.RED : Color.BLUE);
     }
 
     private boolean CheckWinner() {
@@ -499,7 +526,6 @@ public class GameController {
             }
         });
     }
-
 
 
 }

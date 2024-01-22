@@ -17,7 +17,6 @@ import java.net.Socket;
 public class GameApplication extends Application {
     public static RoleName loggedInRoleName;
     public static GameController controller;
-
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(GameApplication.class.getResource("game-view.fxml"));
@@ -26,6 +25,7 @@ public class GameApplication extends Application {
         stage.setTitle("Clank! - " + loggedInRoleName.name());
         stage.setScene(scene);
         stage.show();
+
     }
 
     public static void main(String[] args) {
@@ -43,7 +43,7 @@ public class GameApplication extends Application {
         if (userLoggedIn) {
             if (RoleName.SERVER.equals(loggedInRoleName)) {
                 new Thread(GameApplication::startServer).start();
-            } else {
+            } else  if (RoleName.CLIENT.equals(loggedInRoleName)){
                 new Thread(GameApplication::startClient).start();
             }
         }

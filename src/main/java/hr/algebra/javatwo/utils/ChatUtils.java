@@ -39,7 +39,6 @@ public class ChatUtils {
             e.printStackTrace();
         }
     }
-
     public static void StartRmiRemoteChatServer() {
         int randomPortHint = ConfigurationReader.getInstance().readIntegerValueForKey(ConfigurationKey.RANDOM_PORT_HINT);
         try {
@@ -51,7 +50,6 @@ public class ChatUtils {
             e.printStackTrace();
         }
     }
-
     public static Timeline CheckMessages(TextFlow chatMessagesTextFlow) {
         final Timeline timelineChat = new Timeline(new KeyFrame(
                 Duration.millis(500), actionEvent -> {
@@ -79,23 +77,15 @@ public class ChatUtils {
 
     public static void sendMessage(String message) {
         try {
-
             if (!message.isEmpty()) {
                 LocalDateTime timestamp = LocalDateTime.now();
-
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
                 String formattedTimestamp = timestamp.format(formatter);
-
                 String fullMessage = formattedTimestamp + " - " + GameApplication.loggedInRoleName + ": " + message;
                 remoteChatService.sendMessage(fullMessage);
-
             }
-
         } catch (RemoteException e) {
             throw new RuntimeException(e);
         }
-
     }
-
-
 }

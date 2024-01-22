@@ -15,12 +15,10 @@ public class ConfigurationReader {
     private final Hashtable<String, String> environment;
 
     public ConfigurationReader() {
-        System.out.println("sss");
         environment = new Hashtable<>();
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.fscontext.RefFSContextFactory");
         String currentDirectory = System.getProperty("user.dir");
         environment.put(Context.PROVIDER_URL, "file:"+currentDirectory+"\\configuration");
-
     }
 
 
@@ -34,7 +32,6 @@ public class ConfigurationReader {
     public String readStringValueForKey(ConfigurationKey configurationKey) {
 
         String valueForKey;
-
         try (InitialDirContextCloseable contextCloseable = new InitialDirContextCloseable(environment)) {
             valueForKey =  searchForKey(contextCloseable, configurationKey);
             return valueForKey;
