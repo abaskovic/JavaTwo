@@ -1,6 +1,5 @@
-package hr.algebra.javatwo.utils;
+package hr.algebra.javatwo.Threads;
 
-import hr.algebra.javatwo.Threads.ThreadState;
 import hr.algebra.javatwo.model.GameMove;
 
 import java.io.*;
@@ -9,15 +8,20 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GameMovesUtils  {
+public abstract class GameMoveThread {
     private static final String GAME_MOVES_FILE = "files/gameMoves.dat";
+    private static boolean fileAccessInProgress = false;
 
-    public synchronized static void saveNewGameMove(GameMove gameMove) {
+    protected synchronized void saveNewGameMove(GameMove gameMove) {
 
-        while (ThreadState.fileAccessInProgress){
-//            wait();
+        while (fileAccessInProgress){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
-        ThreadState.fileAccessInProgress = true;
+        fileAccessInProgress = true;
 
         List<GameMove> gameMoveList = getAllGameMove();
         gameMoveList.add(gameMove);
@@ -28,12 +32,14 @@ public class GameMovesUtils  {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        ThreadState.fileAccessInProgress = false;
-//        notifyAll();
+        fileAccessInProgress = false;
+        notify();
 
     }
 
-    private synchronized static List<GameMove> getAllGameMove() {
+    private synchronized List<GameMove> getAllGameMove() {
+
+
         List<GameMove> gameMoveList = new ArrayList<>();
         if (Files.exists(Path.of(GAME_MOVES_FILE))) {
             try (ObjectInputStream objectInputStream = new ObjectInputStream(
@@ -44,11 +50,25 @@ public class GameMovesUtils  {
                 throw new RuntimeException(e);
             }
         }
+
+
         return gameMoveList;
     }
+    protected  synchronized GameMove getLastGameMove() {
+        while (fileAccessInProgress){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        fileAccessInProgress = true;
 
-    public static GameMove getLastGameMove() {
-        return getAllGameMove().getLast();
+        GameMove gameMove= getAllGameMove().getLast();
+
+
+        fileAccessInProgress = false;
+        notify();
+        return gameMove;
     }
 }
-

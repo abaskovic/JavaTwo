@@ -1,9 +1,8 @@
 package hr.algebra.javatwo.Threads;
 
 import hr.algebra.javatwo.model.GameMove;
-import hr.algebra.javatwo.utils.GameMovesUtils;
 
-public class SaveGameMoveThread implements  Runnable{
+public class SaveGameMoveThread extends GameMoveThread implements  Runnable{
 
     private GameMove gameMove;
     public SaveGameMoveThread(GameMove gameMove) {
@@ -13,6 +12,6 @@ public class SaveGameMoveThread implements  Runnable{
 
     @Override
     public void run() {
-        GameMovesUtils.saveNewGameMove(gameMove);
+      saveNewGameMove(gameMove);
     }
 }

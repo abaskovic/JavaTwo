@@ -8,7 +8,6 @@ import hr.algebra.javatwo.utils.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
@@ -27,8 +26,6 @@ import java.util.stream.Collectors;
 
 import static hr.algebra.javatwo.model.Constants.*;
 import static hr.algebra.javatwo.utils.DocumentationUtils.*;
-import static hr.algebra.javatwo.utils.GameUtils.stepOnDragon;
-import static hr.algebra.javatwo.utils.GameUtils.stepOnGold;
 
 public class GameController {
 
@@ -65,32 +62,24 @@ public class GameController {
 
     @FXML
     private GridPane dragonStepGridPane;
-
     @FXML
     private Pane clankPane;
     @FXML
     private Pane bagPane;
-
     @FXML
     private Label timerLabel;
     @FXML
     private Label nextPlayerLabel;
-
     @FXML
     private Label lastMoveLabel;
-
     @FXML
     private TextField chatMessageTextField;
-
     @FXML
     private TextFlow chatMessagesTextFlow;
-
-
     private boolean redPlayerTurn = true;
     private List<ClankColor> bag = new ArrayList<>();
     private List<ClankColor> clank = new ArrayList<>();
     private int dragonPosition = 0;
-
     private int timeInSeconds;
     private String winner;
     private Timeline timeline;
@@ -120,30 +109,28 @@ public class GameController {
         RoleName loggedInRole = GameApplication.loggedInRoleName;
         switch (loggedInRole) {
             case SERVER:
-                final Timeline timelineChat = ChatUtils.CheckMessages(chatMessagesTextFlow);
-                timelineChat.play();
+                CheckMessages();
                 stepButton.setDisable(true);
                 ChatUtils.StartRmiRemoteChatServer();
                 break;
             case CLIENT:
+                CheckMessages();
                 stepButton.setDisable(false);
                 for (int i = 0; i < NUM_DRAGONS; i++) {
-                    placeDragons();
+                   GameUtils.placeDragons(boardGridPane);
                 }
                 ChatUtils.StartRmiRemoteChatClient();
                 break;
             case SINGLE_PLAYER:
                 stepButton.setDisable(false);
                 for (int i = 0; i < NUM_DRAGONS; i++) {
-                    placeDragons();
+                    GameUtils.placeDragons(boardGridPane);
                 }
                 sendButton.setDisable(true);
                 chatMessageTextField.setDisable(true);
                 GetLastMoveThread getLastMoveThread = new GetLastMoveThread(lastMoveLabel);
                 Thread threadStarter = new Thread(getLastMoveThread);
                 threadStarter.start();
-
-
                 break;
         }
 
@@ -156,8 +143,10 @@ public class GameController {
         chatMessageTextFieldAddEventListener();
 
     }
-
-
+    private void CheckMessages() {
+        final Timeline timelineChat = ChatUtils.CheckMessages(chatMessagesTextFlow);
+        timelineChat.play();
+    }
     private void StartTimer() {
 
         timeline = new Timeline(new KeyFrame(
@@ -171,50 +160,15 @@ public class GameController {
 
             if (timeInSeconds <= 0) {
                 timeline.stop();
-                ShowGold();
+               GameUtils.ShowImage(boardGridPane,goldImage);
             }
 
         }
         ));
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
-
-
     }
 
-
-    private void ShowGold() {
-        Random random = new Random();
-        int randomRow = random.nextInt(5);
-        int randomCol = random.nextInt(5);
-
-        goldImage.setVisible(true);
-
-        boardGridPane.add(goldImage, randomCol, randomRow);
-
-
-    }
-
-    private void placeDragons() {
-        Random random = new Random();
-        int randomRow = random.nextInt(5);
-        int randomCol = random.nextInt(5);
-
-        if (randomRow == 0 && randomCol == 0) {
-            randomRow = 2;
-            randomCol = 2;
-        }
-
-        addDragon(randomCol, randomRow);
-    }
-
-    private void addDragon(int col, int row) {
-        Label dragonLabel = new Label("D");
-        dragonLabel.setTextFill(Color.RED);
-        dragonLabel.setAlignment(Pos.BOTTOM_RIGHT);
-        dragonLabel.setPrefSize(150, 150);
-        boardGridPane.add(dragonLabel, col, row);
-    }
 
     @FXML
     protected void onStepButtonClick() {
@@ -222,7 +176,6 @@ public class GameController {
         SendGameState(new GameState(stepButton.getText()));
 
     }
-
     @FXML
     protected void generateDocumentationClick() {
         generateDocumentation();
@@ -352,12 +305,10 @@ public class GameController {
         currentRow = Math.min(currentRow, 4);
         currentCol = Math.min(currentCol, 4);
 
-
         if (currentCol == 4 && currentRow == 4) {
             currentRow = 0;
             currentCol = 0;
         }
-
 
         if (currentCol * currentRow > 24) {
             return;
@@ -371,12 +322,12 @@ public class GameController {
 
         addPaneRectangle(redPlayerTurn ? Color.RED : Color.BLUE, rectangleAdd, clankPane, false);
 
-        if (stepOnGold(currentCol, currentRow, boardGridPane)) {
+        if (GameUtils.stepOnGold(currentCol, currentRow, boardGridPane)) {
             winner = redPlayerTurn ? "Red" : "Blue";
             AlertWinner();
         }
 
-        if (stepOnDragon(currentCol, currentRow, boardGridPane)) {
+        if (GameUtils.stepOnDragon(currentCol, currentRow, boardGridPane)) {
             bag.addAll(clank);
             Collections.shuffle(bag);
 
@@ -427,7 +378,6 @@ public class GameController {
             pane.getChildren().add(playerRectangle);
             if (!skipAdding) clank.add(redPlayerTurn ? ClankColor.R : ClankColor.B);
         }
-
     }
 
     public void saveGame() {
@@ -470,7 +420,6 @@ public class GameController {
 
     public void RefreshStepButton(GameState gameState) {
         stepButton.setText(gameState.getLastStep());
-
     }
 
     public void loadGame() {
@@ -522,7 +471,7 @@ public class GameController {
                     boardGridPane.add(goldImage, cell.getCol(), cell.getRow());
                 }
             } else {
-                addDragon(cell.getCol(), cell.getRow());
+                GameUtils.addDragon(cell.getCol(), cell.getRow(),boardGridPane);
             }
         });
     }
