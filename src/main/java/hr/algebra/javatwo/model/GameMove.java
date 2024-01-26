@@ -2,9 +2,11 @@ package hr.algebra.javatwo.model;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class GameMove implements Serializable {
 
+    private static final long serialVersionUID = 8386114690225142619L;
     private boolean  isRedTurn;
     private int step;
     private LocalDateTime dateTime;
@@ -38,4 +40,5 @@ public class GameMove implements Serializable {
         this.step = step;
         this.dateTime = dateTime;
     }
+
 }

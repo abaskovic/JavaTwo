@@ -12,8 +12,7 @@ public abstract class GameMoveThread {
     private static final String GAME_MOVES_FILE = "files/gameMoves.dat";
     private static boolean fileAccessInProgress = false;
 
-    protected synchronized void saveNewGameMove(GameMove gameMove) {
-
+    public synchronized void saveNewGameMove(GameMove gameMove) {
         while (fileAccessInProgress){
             try {
                 wait();
@@ -22,7 +21,6 @@ public abstract class GameMoveThread {
             }
         }
         fileAccessInProgress = true;
-
         List<GameMove> gameMoveList = getAllGameMove();
         gameMoveList.add(gameMove);
         try (ObjectOutputStream objectOutputStream = new ObjectOutputStream(
@@ -37,9 +35,7 @@ public abstract class GameMoveThread {
 
     }
 
-    private synchronized List<GameMove> getAllGameMove() {
-
-
+    public synchronized List<GameMove> getAllGameMove() {
         List<GameMove> gameMoveList = new ArrayList<>();
         if (Files.exists(Path.of(GAME_MOVES_FILE))) {
             try (ObjectInputStream objectInputStream = new ObjectInputStream(
@@ -65,8 +61,6 @@ public abstract class GameMoveThread {
         fileAccessInProgress = true;
 
         GameMove gameMove= getAllGameMove().getLast();
-
-
         fileAccessInProgress = false;
         notify();
         return gameMove;

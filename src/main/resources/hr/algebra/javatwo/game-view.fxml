@@ -202,6 +202,7 @@
                   <Font size="17.0" />
                </font>
             </Label>
+            <Button fx:id="replayButton" layoutX="165.0" layoutY="23.0" onAction="#replayGame" mnemonicParsing="false" text="Replay game" />
          </children>
       </AnchorPane>
    </children>

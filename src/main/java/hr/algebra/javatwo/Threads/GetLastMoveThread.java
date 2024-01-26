@@ -17,7 +17,7 @@ public class GetLastMoveThread extends GameMoveThread implements  Runnable{
 
         while (true){
         GameMove lastMove = getLastGameMove();
-        String player = !lastMove.isRedTurn()?"Red player":"Blue player";
+        String player = lastMove.isRedTurn()?"Red player":"Blue player";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss");
         String formattedDateTime = lastMove.getDateTime().format(formatter);
         Platform.runLater(()-> {lastMoveLabel.setText("The last Move: " +  player + " moved for  " + lastMove.getStep()

@@ -1,17 +1,16 @@
 package hr.algebra.javatwo.utils;
 
-import hr.algebra.javatwo.controller.GameController;
-import hr.algebra.javatwo.model.ClankColor;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
 
+import java.util.List;
 import java.util.Random;
 
 public class GameUtils {
@@ -80,12 +79,36 @@ public class GameUtils {
         image.setVisible(true);
         gridPane.add(image, randomCol, randomRow);
     }
-
-    public static void ShowImage(int a) {
-        a--;
-
+    public static void hideElements(List<Node> elements) {
+        for (Node element : elements) {
+            element.setVisible(false);
+        }
+    }
+    public static void clearChildren(List<Pane> containers) {
+        for (Pane container : containers) {
+            container.getChildren().clear();
+        }
+    }
+    public static void setToStart(List<ImageView> images) {
+        for (ImageView image : images) {
+            GridPane.setRowIndex(image, 0);
+            GridPane.setColumnIndex(image, 0);
+        }
     }
 
+    public static void rollDice(Button stepButton) {
+        stepButton.setDisable(true);
+        Random random = new Random();
+        int step = random.nextInt(6) + 1;
+        stepButton.setText(Integer.toString(step));
+    }
+
+    public static void ButtonsDisable(Button stepButton, boolean stepButtonDisable, Button skipButton,
+                                      boolean skipButtonDisable, Button useButton, boolean useButtonDisable) {
+        stepButton.setDisable(stepButtonDisable);
+        skipButton.setDisable(skipButtonDisable);
+        useButton.setDisable(useButtonDisable);
+    }
 }
 
 

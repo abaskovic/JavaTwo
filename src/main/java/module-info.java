@@ -3,6 +3,7 @@ module hr.algebra.javatwo {
     requires javafx.fxml;
     requires java.rmi;
     requires java.naming;
+    requires java.xml;
 
     exports hr.algebra.javatwo.chat.service to java.rmi;
 
