@@ -50,8 +50,8 @@
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
-            <GridPane fx:id="boardGridPane" gridLinesVisible="true" layoutX="165.0" layoutY="141.0" prefHeight="428.0" prefWidth="566.0">
-              <columnConstraints>
+             <GridPane fx:id="boardGridPane" gridLinesVisible="true" layoutX="165.0" layoutY="141.0" prefHeight="428.0" prefWidth="566.0" style="-fx-border-color: black; -fx-border-width: 2px;">
+             <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -92,7 +92,7 @@
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
-            <GridPane fx:id="dragonStepGridPane" alignment="CENTER" gridLinesVisible="true" layoutX="468.0" layoutY="640.0" prefHeight="54.0" prefWidth="266.0">
+            <GridPane fx:id="dragonStepGridPane" alignment="CENTER" gridLinesVisible="true" layoutX="468.0" layoutY="640.0" prefHeight="54.0" prefWidth="266.0" style="-fx-border-width: 2px; -fx-border-color: black;">
               <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                   <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -129,7 +129,7 @@
                   <Font name="System Bold" size="12.0" />
                </font>
             </Label>
-            <ImageView fx:id="dragonStepImage" fitHeight="50.0" fitWidth="50.0" layoutX="377.0" layoutY="657.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
+            <ImageView fx:id="dragonStepImage" fitHeight="36.0" fitWidth="44.0" layoutX="377.0" layoutY="670.0" nodeOrientation="INHERIT" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../../../dragon.png" />
                </image>
@@ -148,13 +148,13 @@
                   <Image url="@../../../red.png" />
                </image>
             </ImageView>
-            <Line endX="437.0" layoutX="311.0" layoutY="115.0" startX="-100.0" />
-            <Line endX="427.5" endY="-9.5" layoutX="321.0" layoutY="125.0" startX="427.5" startY="394.0" />
-            <Line endX="-0.5" endY="-0.5" layoutX="211.0" layoutY="116.0" startX="-0.5" startY="25.0" />
-            <Line layoutX="739.0" layoutY="510.0" rotate="90.0" startY="20.0" />
-            <Line endX="-0.5" endY="-0.5" layoutX="221.0" layoutY="126.0" startX="-11.0" startY="15.0" />
-            <Line endX="-32.0" endY="-8.0" layoutX="231.0" layoutY="136.0" startX="-21.0" startY="5.0" />
-            <ImageView fx:id="goldImage" fitHeight="75.0" fitWidth="200.0" layoutX="30.0" layoutY="392.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true">
+             <Line endX="469.0" layoutX="262.0" layoutY="228.0" startX="-95.0" strokeWidth="2.0" />
+             <Line endX="437.0" layoutX="311.0" layoutY="115.0" startX="-100.0" strokeWidth="2.0" />
+             <Line endX="427.5" endY="-9.5" layoutX="321.0" layoutY="125.0" startX="427.5" startY="394.0" strokeWidth="2.0" />
+             <Line endX="-0.5" endY="-0.5" layoutX="211.0" layoutY="116.0" startX="-0.5" startY="25.0" strokeWidth="2.0" />
+             <Line layoutX="739.0" layoutY="510.0" rotate="90.0" startY="20.0" strokeWidth="2.0" />
+             <Line endX="-0.5" endY="-0.5" layoutX="221.0" layoutY="126.0" startX="-11.0" startY="15.0" strokeWidth="2.0" />
+             <Line endX="-32.0" endY="-8.0" layoutX="231.0" layoutY="136.0" startX="-21.0" startY="5.0" strokeWidth="2.0" />    <ImageView fx:id="goldImage" fitHeight="75.0" fitWidth="200.0" layoutX="30.0" layoutY="392.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@../../../gold.png" />
                </image>
@@ -202,8 +202,20 @@
                   <Font size="17.0" />
                </font>
             </Label>
-            <Button fx:id="replayButton" layoutX="165.0" layoutY="23.0" onAction="#replayGame" mnemonicParsing="false" text="Replay game" />
+            <Button fx:id="replayButton" layoutX="165.0" layoutY="23.0" mnemonicParsing="false" onAction="#replayGame" text="Replay game" />
+             <Line endX="-100.0" endY="705.0" layoutX="379.0" layoutY="-137.0" startX="-100.0" startY="279.0" strokeWidth="2.0" />
+             <Line endX="-100.0" endY="705.0" layoutX="493.0" layoutY="-136.0" startX="-100.0" startY="279.0" strokeWidth="2.0" />
+             <Line endX="-100.0" endY="705.0" layoutX="605.0" layoutY="-137.0" startX="-100.0" startY="279.0" strokeWidth="2.0" />
+             <Line endX="-100.0" endY="705.0" layoutX="717.0" layoutY="-137.0" startX="-100.0" startY="279.0" strokeWidth="2.0" />
+             <Line endX="469.0" layoutX="261.0" layoutY="313.0" startX="-95.0" strokeWidth="2.0" />
+             <Line endX="469.0" layoutX="261.0" layoutY="398.0" startX="-95.0" strokeWidth="2.0" />
+             <Line endX="469.0" layoutX="261.0" layoutY="483.0" startX="-95.0" strokeWidth="2.0" />
+            <Line endX="-100.0" endY="55.0" layoutX="621.0" layoutY="639.0" startX="-100.0" startY="3.0" strokeWidth="2.0" />
+            <Line endX="-100.0" endY="54.0" layoutX="675.0" layoutY="640.0" startX="-100.0" startY="3.0" strokeWidth="2.0" />
+            <Line endX="-100.0" endY="55.0" layoutX="726.0" layoutY="639.0" startX="-100.0" startY="3.0" strokeWidth="2.0" />
+            <Line endX="-100.0" endY="55.0" layoutX="779.0" layoutY="639.0" startX="-100.0" startY="3.0" strokeWidth="2.0" />
          </children>
+
       </AnchorPane>
    </children>
 </VBox>

@@ -1,6 +1,6 @@
 package hr.algebra.javatwo.model;
 
 public enum RoleName {
-    SERVER, CLIENT, SINGLE_PLAYER
+    BLUE, RED, SINGLE_PLAYER
 }
 

@@ -4,7 +4,6 @@ import hr.algebra.javatwo.model.ClankColor;
 import hr.algebra.javatwo.model.GameState;
 import hr.algebra.javatwo.model.GridCell;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
 
 import java.io.*;
 import java.util.List;
@@ -20,12 +19,13 @@ public class FileUtils {
             List<ClankColor> bag,
             List<ClankColor> clank,
             boolean redPlayerTurn,
+            boolean goldShowed,
             String redLives,
             String blueLives,
             int dragonPosition,
             String lastStep
     ) {
-        GameState gameStateToBeSaved = new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLives, blueLives, dragonPosition, lastStep, null);
+        GameState gameStateToBeSaved = new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, goldShowed, redLives, blueLives, dragonPosition, lastStep, null);
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
             oos.writeObject(gameStateToBeSaved);
             DialogUtils.showDialog(Alert.AlertType.INFORMATION,

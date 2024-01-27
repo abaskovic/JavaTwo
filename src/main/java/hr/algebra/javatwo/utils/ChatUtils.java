@@ -59,10 +59,10 @@ public class ChatUtils {
                 chatMessagesTextFlow.getChildren().clear();
                 for (String msg : chatMessages.reversed()) {
                     Text chatMessage = new Text(msg +  "\n");
-                    if ( msg.contains(RoleName.SERVER.name())) {
-                        chatMessage.setFill(Color.RED);
-                    } else {
+                    if ( msg.contains(RoleName.BLUE.name())) {
                         chatMessage.setFill(Color.BLUE);
+                    } else {
+                        chatMessage.setFill(Color.RED);
                     }
                     chatMessagesTextFlow.getChildren().add(chatMessage);
 

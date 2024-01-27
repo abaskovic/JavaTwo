@@ -41,9 +41,9 @@ public class GameApplication extends Application {
         }
 
         if (userLoggedIn) {
-            if (RoleName.SERVER.equals(loggedInRoleName)) {
+            if (RoleName.BLUE.equals(loggedInRoleName)) {
                 new Thread(GameApplication::startServer).start();
-            } else  if (RoleName.CLIENT.equals(loggedInRoleName)){
+            } else  if (RoleName.RED.equals(loggedInRoleName)){
                 new Thread(GameApplication::startClient).start();
             }
         }

@@ -6,6 +6,7 @@ import java.util.List;
 public class GameState implements Serializable {
 
 
+
     @Override
     public String toString() {
         return "GameState{" +
@@ -24,12 +25,13 @@ public class GameState implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public GameState(List<GridCell> gameBoardState, int stepsToShowGold, List<ClankColor> bag, List<ClankColor> clank,
-                     boolean redPlayerTurn, String redLives, String blueLives, int dragonPosition, String lastStep, String winner) {
+                     boolean redPlayerTurn, boolean goldShowed, String redLives, String blueLives, int dragonPosition, String lastStep, String winner) {
         this.gameBoardState = gameBoardState;
         this.stepsToShowGold = stepsToShowGold;
         this.bag = bag;
         this.clank = clank;
         this.redPlayerTurn = redPlayerTurn;
+        this.goldShowed = goldShowed;
         this.redLives = redLives;
         this.blueLives = blueLives;
         this.dragonPosition = dragonPosition;
@@ -46,6 +48,7 @@ public class GameState implements Serializable {
         this.redPlayerTurn = false;
         this.redLives = null;
         this.blueLives = null;
+        this.goldShowed=false;
         this.dragonPosition = 0;
         this.lastStep = lastStep;
         this.winner=null;
@@ -57,6 +60,7 @@ public class GameState implements Serializable {
     private final List<ClankColor> bag;
     private final List<ClankColor> clank;
     private final boolean redPlayerTurn;
+    private final boolean goldShowed;
     private final String redLives;
     private final String blueLives;
     private final int dragonPosition;
@@ -68,11 +72,12 @@ public class GameState implements Serializable {
         return gameBoardState;
     }
 
-
+    public boolean isGoldShowed() {
+        return goldShowed;
+    }
     public int gettepsToShowGold() {
         return stepsToShowGold;
     }
-
 
     public List<ClankColor> getBag() {
         return bag;
