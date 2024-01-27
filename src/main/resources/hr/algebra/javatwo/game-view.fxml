@@ -169,7 +169,7 @@
                   <Font name="System Bold" size="15.0" />
                </font>
             </Label>
-            <Label fx:id="timerLabel" layoutX="459.0" layoutY="74.0" prefHeight="27.0" prefWidth="66.0" text="02:00">
+            <Label fx:id="stepsLabel" layoutX="459.0" layoutY="74.0" prefHeight="27.0" prefWidth="66.0" text="0">
                <font>
                   <Font name="System Bold" size="18.0" />
                </font>

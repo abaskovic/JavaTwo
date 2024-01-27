@@ -13,22 +13,18 @@ public class ConfigurationReader {
 
     private static ConfigurationReader reader;
     private final Hashtable<String, String> environment;
-
     public ConfigurationReader() {
         environment = new Hashtable<>();
         environment.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.fscontext.RefFSContextFactory");
         String currentDirectory = System.getProperty("user.dir");
         environment.put(Context.PROVIDER_URL, "file:"+currentDirectory+"\\configuration");
     }
-
-
     public static ConfigurationReader getInstance() {
         if (reader == null) {
             reader = new ConfigurationReader();
         }
         return reader;
     }
-
     public String readStringValueForKey(ConfigurationKey configurationKey) {
 
         String valueForKey;
@@ -44,8 +40,6 @@ public class ConfigurationReader {
         String valueForKey = readStringValueForKey(configurationKey);
         return Integer.parseInt(valueForKey);
     }
-
-
     private static String searchForKey(Context context, ConfigurationKey key) {
 
         String fileName = "conf.properties";

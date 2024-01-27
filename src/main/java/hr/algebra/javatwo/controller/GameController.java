@@ -7,8 +7,6 @@ import hr.algebra.javatwo.model.*;
 import hr.algebra.javatwo.utils.*;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -32,7 +30,7 @@ public class GameController {
     @FXML
     private Button stepButton, useButton, skipButton, newGameButton, sendButton, replayButton;
     @FXML
-    private Label redLivesLabel, blueLivesLabel, timerLabel, lastMoveLabel, nextPlayerLabel;
+    private Label redLivesLabel, blueLivesLabel, stepsLabel, lastMoveLabel, nextPlayerLabel;
     @FXML
     private ImageView redPlayerImage, bluePlayerImage, dragonStepImage, goldImage;
     @FXML
@@ -43,21 +41,17 @@ public class GameController {
     private TextField chatMessageTextField;
     @FXML
     private TextFlow chatMessagesTextFlow;
-    private boolean redPlayerTurn = true;
+    private boolean redPlayerTurn = true, goldShowed = false;
     private List<ClankColor> bag = new ArrayList<>();
     private List<ClankColor> clank = new ArrayList<>();
     private int dragonPosition = 0;
-    private int timeInSeconds;
     private String winner;
-    private Timeline timeline;
 
     public void initialize() {
         GameUtils.ButtonsDisable(stepButton, false, skipButton, true, useButton, true);
-
         List<Node> elementsToHide = Arrays.asList(newGameButton, replayButton, goldImage, lastMoveLabel);
         GameUtils.hideElements(elementsToHide);
         resetGame();
-        timeInSeconds = SHOW_GOLD_AFTER_SEC;
         List<Pane> elementsToClear = Arrays.asList(clankPane, bagPane, boardGridPane, dragonStepGridPane);
         GameUtils.clearChildren(elementsToClear);
         boardGridPane.add(bluePlayerImage, 0, 0);
@@ -94,7 +88,9 @@ public class GameController {
         for (int i = 0; i < NUM_DRAGONS_IN_BAG; i++) {
             bag.add(ClankColor.D);
         }
-        StartTimer();
+        stepsLabel.setText(String.valueOf(SHOW_GOLD_AFTER_STEPS));
+        goldShowed=false;
+        winner = null;
         chatMessageTextFieldAddEventListener();
         XmlUtils.deleteGameMovesFile();
     }
@@ -109,28 +105,20 @@ public class GameController {
         final Timeline timelineChat = ChatUtils.CheckMessages(chatMessagesTextFlow);
         timelineChat.play();
     }
-
-    private void StartTimer() {
-        timeline = new Timeline(new KeyFrame(
-                Duration.seconds(1), actionEvent -> {
-            timeInSeconds--;
-            int remainingSeconds = timeInSeconds % 60;
-            int minutes = timeInSeconds / 60;
-            String formattedTime = String.format("%02d:%02d", minutes, remainingSeconds);
-            timerLabel.setText(formattedTime);
-            if (timeInSeconds <= 0) {
-                timeline.stop();
-                GameUtils.ShowImage(boardGridPane, goldImage);
-            }
-        }
-        ));
-        timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
-    }
-
     @FXML
     protected void onStepButtonClick() {
         GameUtils.rollDice(stepButton);
+        int currentSteps = Integer.parseInt(stepsLabel.getText()) - Integer.parseInt(stepButton.getText());
+        if (!goldShowed){
+            if (currentSteps<0){
+                currentSteps=0;
+            }
+            stepsLabel.setText(String.valueOf(currentSteps));
+            if (Integer.parseInt(stepsLabel.getText()) <=0 && goldShowed==false) {
+                goldShowed=true;
+                GameUtils.ShowImage(boardGridPane, goldImage);
+            }
+        }
         GameUtils.ButtonsDisable(stepButton, true, skipButton, false, useButton, false);
         SendGameState(new GameState(stepButton.getText()));
     }
@@ -171,7 +159,7 @@ public class GameController {
         threadStarter.start();
         useSteps();
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
-        SendGameState(new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(),
+        SendGameState(new GameState(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText(), winner));
         if (!GameApplication.loggedInRoleName.equals(RoleName.SINGLE_PLAYER)) {
             GameUtils.ButtonsDisable(stepButton, true, skipButton, true, useButton, true);
@@ -182,7 +170,7 @@ public class GameController {
     protected void onSkipButtonClick() {
         switchPlayer();
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
-        SendGameState(new GameState(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(),
+        SendGameState(new GameState(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText(), winner));
     }
 
@@ -209,13 +197,11 @@ public class GameController {
         if (redLives < 1) {
             winner = "Blue";
             AlertWinner();
-            timeline.stop();
             return true;
         }
         if (blueLives < 1) {
             winner = "Red";
             AlertWinner();
-            timeline.stop();
             return true;
         }
         return false;
@@ -226,7 +212,6 @@ public class GameController {
                 "Game Finished!", "Winner is " + winner + " player");
         newGameButton.setVisible(true);
         replayButton.setVisible(true);
-        timeline.stop();
     }
 
     private void MoveDragon() {
@@ -255,8 +240,11 @@ public class GameController {
         GridPane.setRowIndex(player, currentRow);
         GridPane.setColumnIndex(player, currentCol);
         int rectangleAdd = (int) Math.ceil((double) step / 2);
-        addPaneRectangle(redPlayerTurn ? Color.RED : Color.BLUE, rectangleAdd, clankPane, false);
-        if (GameUtils.stepOnGold(currentCol, currentRow, boardGridPane)) {
+        if (winner == null){
+            addPaneRectangle(redPlayerTurn ? Color.RED : Color.BLUE, rectangleAdd, clankPane, false);
+
+        }
+        if (GameUtils.stepOnGold(currentCol, currentRow, boardGridPane)&&winner==null) {
             winner = redPlayerTurn ? "Red" : "Blue";
             AlertWinner();
         }
@@ -307,7 +295,7 @@ public class GameController {
 
     public void saveGame() {
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
-        FileUtils.saveGame(gameBoardState, timeInSeconds, bag, clank, redPlayerTurn, redLivesLabel.getText(),
+        FileUtils.saveGame(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText());
     }
 
@@ -319,9 +307,7 @@ public class GameController {
         }
         redPlayerTurn = !gameState.isRedPlayerTurn();
         switchPlayer();
-        timeInSeconds = gameState.getTimeInSeconds();
-        timeline.stop();
-        StartTimer();
+        stepsLabel.setText(String.valueOf(gameState.gettepsToShowGold()));
         SetBoardGameElements(gameState);
         bag.clear();
         bag = gameState.getBag();
@@ -344,9 +330,7 @@ public class GameController {
         GameState recoveredGameState = FileUtils.loadGame();
         if (recoveredGameState != null) {
             SetBoardGameElements(recoveredGameState);
-            timeInSeconds = recoveredGameState.getTimeInSeconds();
-            timeline.stop();
-            StartTimer();
+            stepsLabel.setText(String.valueOf(recoveredGameState.gettepsToShowGold()));
             bag.clear();
             bag = recoveredGameState.getBag();
             clank.clear();

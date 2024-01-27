@@ -4,7 +4,6 @@ module hr.algebra.javatwo {
     requires java.rmi;
     requires java.naming;
     requires java.xml;
-
     exports hr.algebra.javatwo.chat.service to java.rmi;
 
     opens hr.algebra.javatwo to javafx.fxml;
@@ -15,7 +14,4 @@ module hr.algebra.javatwo {
     opens hr.algebra.javatwo.model to javafx.fxml;
     exports hr.algebra.javatwo.controller;
     opens hr.algebra.javatwo.controller to javafx.fxml;
-
-
-
 }

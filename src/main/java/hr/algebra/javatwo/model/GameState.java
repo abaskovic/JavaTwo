@@ -10,7 +10,7 @@ public class GameState implements Serializable {
     public String toString() {
         return "GameState{" +
                 "gameBoardState=" + gameBoardState +
-                ", timeInSeconds=" + timeInSeconds +
+                ", stepsToShowGold=" + stepsToShowGold +
                 ", bag=" + bag +
                 ", clank=" + clank +
                 ", redPlayerTurn=" + redPlayerTurn +
@@ -23,9 +23,10 @@ public class GameState implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public GameState(List<GridCell> gameBoardState, int timeInSeconds, List<ClankColor> bag, List<ClankColor> clank, boolean redPlayerTurn, String redLives, String blueLives, int dragonPosition, String lastStep, String winner) {
+    public GameState(List<GridCell> gameBoardState, int stepsToShowGold, List<ClankColor> bag, List<ClankColor> clank,
+                     boolean redPlayerTurn, String redLives, String blueLives, int dragonPosition, String lastStep, String winner) {
         this.gameBoardState = gameBoardState;
-        this.timeInSeconds = timeInSeconds;
+        this.stepsToShowGold = stepsToShowGold;
         this.bag = bag;
         this.clank = clank;
         this.redPlayerTurn = redPlayerTurn;
@@ -39,7 +40,7 @@ public class GameState implements Serializable {
 
     public GameState(String lastStep) {
         this.gameBoardState = null;
-        this.timeInSeconds = 0;
+        this.stepsToShowGold = 0;
         this.bag = null;
         this.clank = null;
         this.redPlayerTurn = false;
@@ -52,7 +53,7 @@ public class GameState implements Serializable {
 
 
     private final List<GridCell> gameBoardState;
-    private final int timeInSeconds;
+    private final int stepsToShowGold;
     private final List<ClankColor> bag;
     private final List<ClankColor> clank;
     private final boolean redPlayerTurn;
@@ -68,8 +69,8 @@ public class GameState implements Serializable {
     }
 
 
-    public int getTimeInSeconds() {
-        return timeInSeconds;
+    public int gettepsToShowGold() {
+        return stepsToShowGold;
     }
 
 
