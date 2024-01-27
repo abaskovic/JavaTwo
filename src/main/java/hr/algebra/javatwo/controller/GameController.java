@@ -59,12 +59,12 @@ public class GameController {
         dragonStepGridPane.add(dragonStepImage, 0, 0);
         RoleName loggedInRole = GameApplication.loggedInRoleName;
         switch (loggedInRole) {
-            case SERVER:
+            case BLUE:
                 CheckMessages();
                 stepButton.setDisable(true);
                 ChatUtils.StartRmiRemoteChatServer();
                 break;
-            case CLIENT:
+            case RED:
                 CheckMessages();
                 stepButton.setDisable(false);
                 for (int i = 0; i < NUM_DRAGONS; i++) {
@@ -114,7 +114,7 @@ public class GameController {
                 currentSteps=0;
             }
             stepsLabel.setText(String.valueOf(currentSteps));
-            if (Integer.parseInt(stepsLabel.getText()) <=0 && goldShowed==false) {
+            if (Integer.parseInt(stepsLabel.getText()) <=0) {
                 goldShowed=true;
                 GameUtils.ShowImage(boardGridPane, goldImage);
             }
@@ -143,9 +143,9 @@ public class GameController {
     }
 
     private void SendGameState(GameState gameStateToSend) {
-        if (GameApplication.loggedInRoleName.equals(RoleName.CLIENT)) {
+        if (GameApplication.loggedInRoleName.equals(RoleName.RED)) {
             NetworkingUtils.sendGameStateToServer(gameStateToSend);
-        } else if (GameApplication.loggedInRoleName.equals(RoleName.SERVER)) {
+        } else if (GameApplication.loggedInRoleName.equals(RoleName.BLUE)) {
             NetworkingUtils.sendGameStateToClient(gameStateToSend);
         }
     }
@@ -159,7 +159,7 @@ public class GameController {
         threadStarter.start();
         useSteps();
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
-        SendGameState(new GameState(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn, redLivesLabel.getText(),
+        SendGameState(new GameState(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn,goldShowed, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText(), winner));
         if (!GameApplication.loggedInRoleName.equals(RoleName.SINGLE_PLAYER)) {
             GameUtils.ButtonsDisable(stepButton, true, skipButton, true, useButton, true);
@@ -170,7 +170,7 @@ public class GameController {
     protected void onSkipButtonClick() {
         switchPlayer();
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
-        SendGameState(new GameState(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn, redLivesLabel.getText(),
+        SendGameState(new GameState(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn,goldShowed, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText(), winner));
     }
 
@@ -295,7 +295,7 @@ public class GameController {
 
     public void saveGame() {
         List<GridCell> gameBoardState = GameStateUtils.createGameBoardState(boardGridPane);
-        FileUtils.saveGame(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn, redLivesLabel.getText(),
+        FileUtils.saveGame(gameBoardState, Integer.parseInt(stepsLabel.getText()), bag, clank, redPlayerTurn,goldShowed, redLivesLabel.getText(),
                 blueLivesLabel.getText(), dragonPosition, stepButton.getText());
     }
 
@@ -310,6 +310,11 @@ public class GameController {
         stepsLabel.setText(String.valueOf(gameState.gettepsToShowGold()));
         SetBoardGameElements(gameState);
         bag.clear();
+        if (gameState.isGoldShowed()){
+            goldShowed=true;
+            goldImage.setVisible(true);
+        }
+
         bag = gameState.getBag();
         clank.clear();
         clank = gameState.getClank();
@@ -334,6 +339,10 @@ public class GameController {
             bag.clear();
             bag = recoveredGameState.getBag();
             clank.clear();
+            if (recoveredGameState.isGoldShowed()){
+                goldShowed=true;
+                goldImage.setVisible(true);
+            }
             clank = recoveredGameState.getClank();
             clankPane.getChildren().clear();
             clank.forEach(clankColor -> addPaneRectangle(clankColor.equals(ClankColor.R) ? Color.RED : Color.BLUE, 1, clankPane, true));
@@ -371,6 +380,7 @@ public class GameController {
     }
 
     public void replayGame() {
+        goldImage.setVisible(false);
         resetGame();
         List<ImageView> elementsToSetOnStart = Arrays.asList(dragonStepImage, redPlayerImage, bluePlayerImage);
         GameUtils.setToStart(elementsToSetOnStart);

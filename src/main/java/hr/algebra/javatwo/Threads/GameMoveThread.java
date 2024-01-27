@@ -60,7 +60,7 @@ public abstract class GameMoveThread {
         }
         fileAccessInProgress = true;
 
-        GameMove gameMove= getAllGameMove().getLast();
+        GameMove gameMove= getAllGameMove().get(getAllGameMove().size()-1);
         fileAccessInProgress = false;
         notify();
         return gameMove;

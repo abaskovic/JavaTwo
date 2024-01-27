@@ -2,172 +2,62 @@
 <gameMoves>
     <gameMove>
         <isRedTurn>true</isRedTurn>
-        <step>4</step>
-        <dateTime>2024-01-27T16:41:38.641589800</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>4</step>
-        <dateTime>2024-01-27T16:41:39.105598800</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>1</step>
-        <dateTime>2024-01-27T16:41:39.425568500</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>5</step>
-        <dateTime>2024-01-27T16:41:39.761568700</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>4</step>
-        <dateTime>2024-01-27T16:41:40.201568800</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>1</step>
-        <dateTime>2024-01-27T16:41:40.609591</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
         <step>2</step>
-        <dateTime>2024-01-27T16:41:40.977604700</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>4</step>
-        <dateTime>2024-01-27T16:41:41.297568200</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>5</step>
-        <dateTime>2024-01-27T16:41:41.649568500</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>5</step>
-        <dateTime>2024-01-27T16:41:42.001568500</dateTime>
+        <dateTime>2024-01-27T19:15:49.642895400</dateTime>
     </gameMove>
     <gameMove>
         <isRedTurn>true</isRedTurn>
         <step>6</step>
-        <dateTime>2024-01-27T16:41:42.369568300</dateTime>
+        <dateTime>2024-01-27T19:15:56.178315</dateTime>
+    </gameMove>
+    <gameMove>
+        <isRedTurn>false</isRedTurn>
+        <step>6</step>
+        <dateTime>2024-01-27T19:15:57.924574400</dateTime>
+    </gameMove>
+    <gameMove>
+        <isRedTurn>true</isRedTurn>
+        <step>5</step>
+        <dateTime>2024-01-27T19:15:59.746346300</dateTime>
+    </gameMove>
+    <gameMove>
+        <isRedTurn>false</isRedTurn>
+        <step>6</step>
+        <dateTime>2024-01-27T19:16:02.426548800</dateTime>
+    </gameMove>
+    <gameMove>
+        <isRedTurn>true</isRedTurn>
+        <step>1</step>
+        <dateTime>2024-01-27T19:16:07.402484900</dateTime>
     </gameMove>
     <gameMove>
         <isRedTurn>false</isRedTurn>
         <step>1</step>
-        <dateTime>2024-01-27T16:41:43.089566700</dateTime>
+        <dateTime>2024-01-27T19:16:11.418344</dateTime>
+    </gameMove>
+    <gameMove>
+        <isRedTurn>true</isRedTurn>
+        <step>4</step>
+        <dateTime>2024-01-27T19:16:14.194617900</dateTime>
+    </gameMove>
+    <gameMove>
+        <isRedTurn>false</isRedTurn>
+        <step>6</step>
+        <dateTime>2024-01-27T19:16:15.914479500</dateTime>
     </gameMove>
     <gameMove>
         <isRedTurn>true</isRedTurn>
         <step>6</step>
-        <dateTime>2024-01-27T16:41:43.937566600</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>3</step>
-        <dateTime>2024-01-27T16:41:44.609569800</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>1</step>
-        <dateTime>2024-01-27T16:41:45.433568400</dateTime>
+        <dateTime>2024-01-27T19:16:19.642305800</dateTime>
     </gameMove>
     <gameMove>
         <isRedTurn>false</isRedTurn>
         <step>4</step>
-        <dateTime>2024-01-27T16:41:46.177566400</dateTime>
+        <dateTime>2024-01-27T19:16:21.898503900</dateTime>
     </gameMove>
     <gameMove>
         <isRedTurn>true</isRedTurn>
         <step>2</step>
-        <dateTime>2024-01-27T16:41:46.745566200</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>2</step>
-        <dateTime>2024-01-27T16:41:47.097566500</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>3</step>
-        <dateTime>2024-01-27T16:41:47.705566300</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>3</step>
-        <dateTime>2024-01-27T16:41:48.041566200</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>3</step>
-        <dateTime>2024-01-27T16:41:48.497566100</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>5</step>
-        <dateTime>2024-01-27T16:41:48.833566100</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>1</step>
-        <dateTime>2024-01-27T16:41:49.201566400</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>2</step>
-        <dateTime>2024-01-27T16:41:49.537566100</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>2</step>
-        <dateTime>2024-01-27T16:41:49.889334300</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>2</step>
-        <dateTime>2024-01-27T16:41:50.209981400</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>2</step>
-        <dateTime>2024-01-27T16:41:51.009801700</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>3</step>
-        <dateTime>2024-01-27T16:41:51.777354100</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>1</step>
-        <dateTime>2024-01-27T16:41:52.593808300</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>5</step>
-        <dateTime>2024-01-27T16:41:53.377344400</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>5</step>
-        <dateTime>2024-01-27T16:41:54.161680600</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>5</step>
-        <dateTime>2024-01-27T16:41:54.889367800</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>true</isRedTurn>
-        <step>5</step>
-        <dateTime>2024-01-27T16:41:55.953690</dateTime>
-    </gameMove>
-    <gameMove>
-        <isRedTurn>false</isRedTurn>
-        <step>6</step>
-        <dateTime>2024-01-27T16:41:56.729762900</dateTime>
+        <dateTime>2024-01-27T19:16:24.330760400</dateTime>
     </gameMove>
 </gameMoves>

@@ -57,7 +57,7 @@ public class ChatUtils {
             try {
                 List<String> chatMessages = remoteChatService.getAllChatMessages();
                 chatMessagesTextFlow.getChildren().clear();
-                for (String msg : chatMessages.reversed()) {
+                for (String msg : chatMessages) {
                     Text chatMessage = new Text(msg +  "\n");
                     if ( msg.contains(RoleName.BLUE.name())) {
                         chatMessage.setFill(Color.BLUE);
